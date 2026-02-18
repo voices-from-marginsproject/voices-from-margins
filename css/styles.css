@@ -1,0 +1,13 @@
+/* Small custom styles for the starter site */
+body {
+  padding-top: 70px; /* space for fixed navbar */
+}
+header {
+  background-image: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.15)), url('https://picsum.photos/seed/header/1600/400');
+  background-size: cover;
+  background-position: center;
+}
+
+footer small {
+  color: #6c757d;
+}
