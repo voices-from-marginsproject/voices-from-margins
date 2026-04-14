@@ -340,33 +340,14 @@
     <!-- ██ PAGE 3: MAP ██ -->
     <section id="map" class="page-section">
 
-        <div class="page-hero-inner" style="margin-top:76px;">
-            <div class="container text-center">
-                <p class="section-label mb-2">Page Three</p>
-                <h2 class="section-heading mb-3" style="font-size:clamp(1.8rem,3.5vw,2.8rem);">Journeys to Care: Interactive Map</h2>
-                <p class="section-text mx-auto" style="max-width:580px;">Visualizing the geographic disparities and distances women must travel to access reproductive healthcare in West Bengal.</p>
-            </div>
-        </div>
+    
 
-        <div class="bg-warm-white pb-5">
+      <div style="margin-top:76px;"></div>
             <div class="container reveal">
                 <div class="row">
-                    <div class="col-lg-8 mb-4 mb-lg-0">
-                        <div class="map-area-wrapper"><div id="leaflet-map"></div></div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="legend-card p-4 mb-3">
-                            <h4 class="legend-title mb-3">Map Legend</h4>
-                            <div class="d-flex align-items-center py-2" style="border-bottom:1px solid rgba(232,160,122,0.1);"><span class="legend-dot village me-3"></span><span class="legend-label">Village Markers</span></div>
-                            <div class="d-flex align-items-center py-2" style="border-bottom:1px solid rgba(232,160,122,0.1);"><span class="legend-dot clinic me-3"></span><span class="legend-label">Clinic / Health Center</span></div>
-                            <div class="d-flex align-items-center py-2" style="border-bottom:1px solid rgba(232,160,122,0.1);"><span class="legend-dot route me-3"></span><span class="legend-label">Travel Routes</span></div>
-                            <div class="d-flex align-items-center py-2"><span class="legend-dot distance me-3"></span><span class="legend-label">Distance Indicators</span></div>
-                        </div>
-                        <div class="findings-card p-4">
-                            <h4 class="legend-title mb-3">Key Findings</h4>
-                            <div class="py-2" style="border-bottom:1px solid rgba(255,255,255,0.08);"><div class="finding-num">[XX] km</div><div class="finding-label">Avg. distance to nearest facility</div></div>
-                            <div class="py-2" style="border-bottom:1px solid rgba(255,255,255,0.08);"><div class="finding-num">[X] hrs</div><div class="finding-label">Avg. travel time for specialized care</div></div>
-                            <div class="py-2"><div class="finding-num">[XX]%</div><div class="finding-label">Women reporting geographic barriers</div></div>
+                    <div class="col-lg-12">
+                        <div class="map-area-wrapper">
+                            <iframe src="absent-care-flowmap.html" style="width:100%;height:calc(100vh - 76px);border:none;" title="Absent Care Flowmap"></iframe>
                         </div>
                     </div>
                 </div>
@@ -484,7 +465,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script>
         // PAGE SWITCHING
-        var mapLoaded = false;
 
         function showPage(pageId) {
             // Hide all pages
@@ -501,10 +481,7 @@
             // Scroll to top
             window.scrollTo(0, 0);
             // Init map on first visit
-            if (pageId === 'map' && !mapLoaded) {
-                initMap();
-                mapLoaded = true;
-            }
+          
             // Trigger reveals
             setTimeout(function() {
                 document.querySelectorAll('#' + pageId + ' .reveal').forEach(function(el) {
@@ -561,19 +538,8 @@
             });
         });
 
-        // Leaflet Map
-        function initMap() {
-            var map = L.map('leaflet-map').setView([23.0, 87.5], 7);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 15 }).addTo(map);
-            var vi = L.divIcon({className:'',html:'<div style="width:14px;height:14px;background:#D96B4F;border:2.5px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.3)"></div>',iconSize:[14,14],iconAnchor:[7,7]});
-            var ci = L.divIcon({className:'',html:'<div style="width:14px;height:14px;background:#6BA38E;border:2.5px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.3)"></div>',iconSize:[14,14],iconAnchor:[7,7]});
-            var villages=[[23.25,87.85,"Village A"],[22.80,87.20,"Village B"],[23.60,87.10,"Village C"],[22.50,88.10,"Village D"],[23.10,86.70,"Village E"]];
-            var clinics=[[22.57,88.36,"Kolkata Medical"],[23.24,87.07,"Durgapur Health"],[22.34,87.32,"Kharagpur Clinic"]];
-            villages.forEach(function(v){L.marker([v[0],v[1]],{icon:vi}).addTo(map).bindPopup('<b>'+v[2]+'</b><br>Village');});
-            clinics.forEach(function(c){L.marker([c[0],c[1]],{icon:ci}).addTo(map).bindPopup('<b>'+c[2]+'</b><br>Health facility');});
-            villages.forEach(function(v){var n=clinics.reduce(function(a,b){return Math.hypot(v[0]-a[0],v[1]-a[1])<Math.hypot(v[0]-b[0],v[1]-b[1])?a:b;});L.polyline([[v[0],v[1]],[n[0],n[1]]],{color:'#E8946A',weight:2,opacity:.6,dashArray:'8,6'}).addTo(map);});
-            setTimeout(function(){ map.invalidateSize(); }, 200);
-        }
+    
+       
     </script>
 </body>
 </html>

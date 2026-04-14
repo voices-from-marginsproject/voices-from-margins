@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absent Care, Extracted Hope. Multi-Scalar Migration Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lora:wght@400;500;600&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#FDFBF7;--text:#1E1C18;--text2:#5A5750;--text3:#8E897F;--coral:#C74B2A;--coralL:#FAE9E4;--coralD:#6A2510;--amber:#A86B15;--amberL:#F8EDDA;--amberD:#5C3504;--purple:#4A41A8;--purpleL:#EDEDFC;--purpleD:#1E1A4E;--teal:#0D6049;--tealL:#DFF3EC;--red:#922828;--redL:#FAEAEA;--blue:#165A9A;--blueL:#E4F0FA;--sans:'Source Sans 3','Segoe UI',sans-serif;--serif:'Playfair Display',Georgia,serif;--body:'Lora',Georgia,serif}
+html,body{height:100%;font-family:var(--sans);color:var(--text);background:var(--bg)}
+.page{display:flex;flex-direction:column;height:100vh}
+.top-bar{padding:8px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,.08);background:var(--bg);z-index:1000;flex-shrink:0;flex-wrap:wrap;gap:6px;overflow:visible;position:relative}
+.top-bar h1{font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
+.ctrls{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.tbtn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:14px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid transparent;user-select:none;transition:opacity .2s;font-family:var(--sans)}
+.tbtn.on{border-color:currentColor}
+.tbtn.off{opacity:.35}
+.tbtn .dot{width:6px;height:6px;border-radius:50%}
+.main{flex:1;display:flex;overflow:hidden}
+#map{flex:1;min-width:0;position:relative}
+#fc{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:450}
+.panel{width:320px;border-left:1px solid rgba(0,0,0,.06);overflow-y:auto;background:rgba(253,250,245,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;flex-shrink:0}
+.panel.open{display:block}
+.pi{padding:18px}
+.pi h3{font-family:var(--serif);font-size:22px;font-weight:700;margin:0 0 6px;letter-spacing:-.02em;line-height:1.2}
+.pi p,.pi .desc{font-size:13px;font-family:var(--body);color:var(--text2);line-height:1.7;margin:0 0 6px}
+.tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:8px;font-weight:500;margin-bottom:8px;font-family:var(--sans)}
+.big{font-family:var(--serif);font-size:28px;font-weight:400;margin:4px 0}
+.row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid rgba(0,0,0,.04)}
+.row:last-child{border:none}
+.rl{color:var(--text2);font-family:var(--body)}.rv{font-weight:600;max-width:55%;text-align:right;font-family:var(--sans)}
+.dv{height:1px;background:rgba(0,0,0,.07);margin:10px 0}
+.st{font-size:13px;font-weight:600;margin-bottom:8px;font-family:var(--sans)}
+.px{position:sticky;top:0;text-align:right;padding:4px;z-index:10}
+.px button{width:28px;height:28px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:white;cursor:pointer;font-size:14px;color:var(--text2)}
+.cr{display:flex;gap:10px;padding:8px 0;border-bottom:0.5px solid rgba(0,0,0,.04)}
+.cr:last-child{border:none}
+.ci{flex-shrink:0;width:30px;height:30px;margin-top:2px}
+.ct{font-size:13px;font-weight:600;margin-bottom:2px;font-family:var(--sans)}
+.cd{font-size:12px;font-family:var(--body);color:var(--text2);line-height:1.6}
+.sec h4{font-size:14px;font-weight:700;margin-bottom:5px;font-family:var(--serif)}
+.is{position:absolute;bottom:0;left:0;right:0;z-index:500;background:linear-gradient(transparent,rgba(253,251,247,.95) 30%);padding:10px 12px 8px;pointer-events:none}
+.is>*{pointer-events:auto}
+.ics{display:flex;gap:6px;overflow-x:auto;padding-bottom:3px}
+.ic{background:rgba(255,255,255,.94);border-radius:8px;padding:8px 10px;min-width:160px;max-width:200px;flex-shrink:0;border:0.5px solid rgba(0,0,0,.07)}
+.ic h4{font-family:var(--serif);font-size:12px;font-weight:600;margin-bottom:3px}
+.ic .sr{display:flex;justify-content:space-between;font-size:10px;padding:2px 0}
+.ic .sl{color:var(--text2)}.ic .sv{font-weight:500}
+.sec{background:rgba(0,0,0,.025);border-radius:8px;padding:10px;margin:8px 0}
+.sec h4{font-size:13px;font-weight:600;margin-bottom:5px;font-family:var(--sans)}
+@media(max-width:800px){.panel{width:100%;position:absolute;top:0;right:0;bottom:0;z-index:600}}
+/* About Sidebar */
+.about-sidebar{width:380px;background:rgba(245,235,220,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);overflow-y:auto;-webkit-overflow-scrolling:touch;position:absolute;left:0;top:0;height:100%;z-index:900;transition:transform .3s ease;overscroll-behavior:contain}
+.about-sidebar.collapsed{transform:translateX(-100%)}
+.about-inner{padding:32px 28px 48px}
+.about-label{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#B8614A;display:block;margin-bottom:14px}
+.about-title{font-family:var(--serif);font-size:28px;font-weight:700;color:#1A1814;line-height:1.2;margin:0 0 18px;letter-spacing:-.02em;text-shadow:0 0 8px rgba(255,255,255,.9),0 0 16px rgba(255,255,255,.8),0 0 30px rgba(255,255,255,.6)}
+.about-intro{font-family:var(--body);font-size:15px;line-height:1.75;color:#1A1814;margin:0 0 28px;text-shadow:0 0 6px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.8),0 0 24px rgba(255,255,255,.6)}
+.about-sidebar .acc-item{border-bottom:1px solid rgba(0,0,0,.06)}
+.about-sidebar .acc-item:last-child{border-bottom:none}
+.about-sidebar .acc-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:15px 0;background:none;border:none;cursor:pointer;font-family:var(--serif);font-size:17px;font-weight:700;color:#1A1814;text-align:left;text-shadow:0 0 6px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.8)}
+.about-sidebar .acc-btn:hover{color:#B8614A}
+.about-sidebar .acc-arrow{font-size:20px;font-weight:400;color:#1A1814;font-family:var(--sans)}
+.about-sidebar .acc-body{max-height:0;overflow:hidden;padding:0;transition:max-height .35s ease,padding .35s ease}
+.about-sidebar .acc-body h4{font-family:var(--serif);font-size:16px;font-weight:700;color:#1A1814;margin:20px 0 10px;text-shadow:0 0 6px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.8)}
+.about-sidebar .acc-body h4:first-child{margin-top:4px}
+.about-sidebar .acc-body p{font-family:var(--body);font-size:15px;line-height:1.8;color:#0F0E0B;margin:0 0 14px;text-align:justify;text-shadow:0 0 5px rgba(255,255,255,.9),0 0 12px rgba(255,255,255,.8)}
+.about-sidebar .ref{font-size:10px;color:#4A4540;font-family:var(--sans);font-style:italic;text-shadow:0 0 5px rgba(255,255,255,.9);margin-top:12px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06)}
+.about-toggle{position:absolute;top:50%;right:-26px;transform:translateY(-50%);width:26px;height:52px;background:rgba(245,235,220,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);border:1px solid rgba(0,0,0,.08);border-left:none;border-radius:0 6px 6px 0;cursor:pointer;font-size:12px;color:#1A1814;display:flex;align-items:center;justify-content:center;z-index:900}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="top-bar">
+<h1>Absent Care, Extracted Hope</h1>
+<div class="ctrls" id="layerBtns"></div>
+</div>
+<div class="main">
+<div id="map">
+<canvas id="fc"></canvas>
+<div class="about-sidebar" id="aboutSB">
+<div class="about-inner">
+<h2 class="about-title">Mapping Reproductive Injustice in Rural West Bengal</h2>
+
+<div class="acc-item">
+<button class="acc-btn" onclick="toggleAcc(this)"><span>About This Map</span><span class="acc-arrow">+</span></button>
+<div class="acc-body">
+<p>India's fertility industry was built on patients crossing borders, travelling from wealthier countries to Indian clinics for cheaper treatment. Reproductive tourism scholarship has documented this flow extensively. But as competition among Kolkata's 150-plus private Assisted Reproductive Technology (ART) clinics intensifies, the industry turns inward, toward its own rural hinterland. Doctors travel from Kolkata to semi-urban towns, form alliances with local practitioners, and screen women from surrounding villages. These women become the new patient base. The profit no longer flows only from abroad. It is drawn from communities where public fertility care has never existed.</p>
+<p>This map traces that extraction. It follows women as they move from villages with no qualified doctors to semi-urban clinics with no fertility infrastructure to a city where treatment is concentrated but emergency care is absent from the clinics that provide it. It documents what is available at each level, what is missing, and how far women must travel to compensate for that absence. ART demands repeated monitoring, hormonal regulation, proximity to emergency intervention. The women this industry recruits have none of it. They travel, return, travel again, and bear the medical risks of treatment in communities where those risks cannot be managed.</p>
+<p>Built from ethnographic fieldwork across rural and semi-urban West Bengal between 2024 and 2025, this map locates infertility cases, traces referral pathways, and measures the distances women cover in pursuit of a diagnosis and a chance at conception. These journeys do not appear in hospital registers, insurance records, or government health surveys. This map is an attempt to make them visible, and to document a structure of care that operates through the very inequalities it claims to address.</p>
+</div></div>
+
+<div class="acc-item">
+<button class="acc-btn" onclick="toggleAcc(this)"><span>The Care Landscape & Cost</span><span class="acc-arrow">+</span></button>
+<div class="acc-body">
+<h4>Village Level</h4>
+<p>In most rural villages of West Bengal, there are no qualified doctors. The nearest government facility is a sub-centre, typically staffed by a single Auxiliary Nurse Midwife who provides immunisation, antenatal check-ups, and contraception. None of these services address infertility.</p>
+<p>So the women who cannot conceive turn to what is available. Unqualified practitioners locally known as "village doctors," former assistants or compounders who once worked under qualified doctors and have since opened their own small clinics. They charge as little as 50 rupees, less than a dollar, per visit. Women also seek help from homeopathy practitioners, Ayurvedic healers, and faith healers at dargahs and temples. These are not choices made out of preference. They are the only options that exist. The diagnostic tools to identify conditions such as tubal blockage, hormonal imbalance, or male factor infertility are entirely absent at the village level. Without them, women go undiagnosed for years, moving from one provider to the next, spending what little they have, often blamed for a condition no one around them has the means to name.</p>
+<h4>Semi-Urban Level</h4>
+<p>Women seeking a diagnosis must travel to the nearest semi-urban town, typically 10 to 60 km from their villages. Gynaecologists, general practitioners, and registered medical practitioners at this level operate small private clinics with limited diagnostic capacity, offering basic ultrasound and pathology services. Government hospitals in many of these semi-urban towns maintain gynaecology departments, but the specialists meant to staff them are largely absent. A national capacity assessment found that only 10% of medical officers at sub-district facilities provided any infertility treatment, while 73% referred patients elsewhere (Chauhan et al., 2018). Advanced diagnostics required for infertility evaluation, such as AMH testing, hysterosalpingography, and hormonal panels, also remain unavailable in many of these semi-urban towns. Fertility treatment and ART laboratories are similarly lacking across most facilities at this level.</p>
+<p>This infrastructural absence shapes what follows. As competition among Kolkata's private ART clinics intensifies, they look outward for patients. Clinics have established financial arrangements with semi-urban practitioners, who direct women into urban treatment circuits in exchange for referral fees. When local practitioners identify infertility, they do not initiate treatment. Instead, patients are held until ART clinicians from Kolkata conduct periodic screening camps at these clinics, typically twice a month. Those selected are referred to the city for treatment. The local practitioner profits from the referral, the urban clinic secures a steady patient base, and the woman enters a treatment pathway that requires repeated travel to a city where she has no social or material support.</p>
+<p class="ref">Reference: Chauhan S, Unisa S, Joshi B, et al. Capacity Assessment of District Health System in India on Services for Prevention and Management of Infertility. Indian J Community Med. 2018;43(1):19-23. PMID: 29531433; PMCID: PMC5842468.</p>
+<h4>Urban Level: Kolkata</h4>
+<p>Kolkata hosts over 150 private ART clinics competing for a limited urban patient base. This saturation drives the industry outward into rural and semi-urban West Bengal, where an untapped population of infertile women has never had access to fertility care. The referral arrangements with semi-urban practitioners and the periodic screening camps are the commercial strategy through which urban clinics secure patients the city alone can no longer provide.</p>
+<p>Urban patients access this infrastructure as consumers with choices. They compare clinics, seek second opinions, switch providers, and travel to other cities for specialised treatment. Rural women enter the same system under entirely different conditions. They arrive through a single referral chain they did not choose. They cannot compare clinics or seek alternatives. They travel 100 to 350 km for each visit.</p>
+<p>The system these women enter is not structured to care for them. It is structured to extract from them. A single IVF cycle costs $1,200 to $3,000. For a household earning $96 to $120 per month, this represents 10 to 22 months of total income. Most families can barely afford one cycle. They exhaust their savings, borrow from relatives, sell land, or take high-interest informal loans. Neither Ayushman Bharat nor West Bengal's Swasthya Sathi scheme covers fertility treatment. Banks do not lend for it. The investment is enormous. The odds are against them. IVF succeeds roughly 40% of the time. Most cycles fail.</p>
+<p>The clinical structure compounds this harm. ART clinics operate as outpatient facilities, without emergency wards, inpatient beds, or overnight monitoring. Women are sent home the same day after procedures. For rural patients, home is hours away. They administer hormonal injections alone. When something goes wrong, there is nowhere close enough to go. An untreated complication can end not only a cycle but a woman's ability to conceive again, turning a family's financial sacrifice into a permanent loss. The system recruits these women, charges them what they cannot afford, gives them odds that require multiple attempts, and operates without the infrastructure to keep them safe through even one.</p>
+</div></div>
+
+<div class="acc-item">
+<button class="acc-btn" onclick="toggleAcc(this)"><span>Policy Context: The ART (Regulation) Act, 2021</span><span class="acc-arrow">+</span></button>
+<div class="acc-body">
+<p>India's ART Act, enacted in 2022, was meant to regulate the fertility industry after two decades without oversight. It mandates clinic registration, classifies facilities into two levels, establishes a national registry, and penalises sex selection and gamete trafficking. But the Act regulates clinics. It does not address patients.</p>
+<p>The law contains no provisions for geographic equity, no mandate for public-sector ART expansion, no regulation of treatment costs, and no requirement for emergency care infrastructure at fertility clinics. It does not regulate the financial arrangements between urban ART clinics and semi-urban practitioners who direct patients into treatment circuits. It does not address the outreach camps through which Kolkata's private clinics recruit patients from communities that lack basic diagnostic facilities. Ayushman Bharat and West Bengal's Swasthya Sathi both exclude fertility treatment. Banks do not lend for it. At the time of the Act's passage, the Parliamentary Standing Committee noted that only six public-sector IVF centres existed across the entire country (Kashyap and Tripathi, 2023).</p>
+<p>Every stage of the journey this map documents falls outside the Act's scope. The rural woman who goes undiagnosed for years because village-level healthcare cannot identify her condition. The semi-urban practitioner who holds her for a visiting ART team rather than treating her locally. The urban clinic that charges her a year's household income for a procedure with a 40% success rate, then sends her home the same day without emergency support. The complication that goes untreated because the nearest hospital is hours away. The family that sells its land to fund a second cycle that may never happen. The Act governs the clinic at the centre of this pipeline. It says nothing about the women who pass through it.</p>
+<p class="ref">Sources: ART (Regulation) Act, 2021 (indiacode.nic.in); ART (Regulation) Rules, March 2022 (dhr.gov.in); PRS Legislative Research; Kashyap and Tripathi, 2023</p>
+</div></div>
+
+<div class="acc-item">
+<button class="acc-btn" onclick="toggleAcc(this)"><span>What This Map Attempts</span><span class="acc-arrow">+</span></button>
+<div class="acc-body">
+<p>Through this map, I have tried to make visible what policy does not see. The ART Act regulates what happens inside the clinic. This map documents what happens outside it: the distances women travel, the infrastructure that does not exist along the way, the financial ruin that follows a failed cycle, and the emergency care that is absent when complications arise.</p>
+<p>It traces a system that recruits rural women into commercial fertility treatment without building the conditions under which that treatment can be safe, affordable, or accessible.</p>
+<p>This map is not a policy document. It is an ethnographic record of what the current framework leaves out, and an argument that any regulation of India's fertility industry that does not account for the patient's full journey, from village to clinic and back, fails the very people it should protect.</p>
+</div></div>
+
+
+
+
+<div class="acc-item">
+<button class="acc-btn" onclick="toggleAcc(this)"><span>Movements on the Map</span><span class="acc-arrow">+</span></button>
+<div class="acc-body">
+
+<div style="display:flex;align-items:start;gap:12px;margin-bottom:16px">
+<span style="display:inline-block;min-width:12px;width:12px;height:12px;background:#7B2D8E;border-radius:50%;margin-top:4px"></span>
+<div><strong style="color:#7B2D8E">Purple</strong><br><span style="font-size:13px;color:#1A1814">Doctors moving outward from Kolkata to semi-urban towns for screening camps.</span></div>
+</div>
+
+<div style="display:flex;align-items:start;gap:12px;margin-bottom:16px">
+<span style="display:inline-block;min-width:12px;width:12px;height:12px;background:#B22222;border-radius:50%;margin-top:4px"></span>
+<div><strong style="color:#B22222">Red</strong><br><span style="font-size:13px;color:#1A1814">Rural patients moving inward. Village to nearest semi-urban town (solid line), then semi-urban town to Kolkata (dashed line).</span></div>
+</div>
+
+<div style="display:flex;align-items:start;gap:12px;margin-bottom:16px">
+<span style="display:inline-block;min-width:12px;width:12px;height:12px;background:#E6196E;border-radius:50%;margin-top:4px"></span>
+<div><strong style="color:#E6196E">Pink</strong><br><span style="font-size:13px;color:#1A1814">Urban patients circulating between Kolkata clinics and traveling to Chennai, Hyderabad, or Vellore.</span></div>
+</div>
+
+</div></div>
+
+</div>
+<button class="about-toggle" id="aboutToggle" onclick="toggleAbout()">◀</button>
+</div>
+</div>
+<div class="panel" id="pnl"><div class="px"><button onclick="cP()">x</button></div><div class="pi" id="pc"></div></div>
+</div>
+</div>
+<script>
+// ===== LAYER TOGGLE STATE =====
+var L_STATE={rural:1,semi:1,urban:1,border:0,global:0,structural:1};
+var flowUp=true,flowDown=true,flowShop=true;
+
+// ===== ICONS (small 28px) =====
+function ico(t){var I={quack:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="4" y="8" width="24" height="18" rx="3" fill="#FCEBEB" stroke="#A32D2D" stroke-width="1.5"/><path d="M12 14v6M20 14v6M14 20h4" stroke="#A32D2D" stroke-width="1.5" stroke-linecap="round"/><circle cx="16" cy="5" r="3" fill="#FCEBEB" stroke="#A32D2D" stroke-width="1.5"/></svg>',traditional:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M16 4c-4 6-8 10-8 16a8 8 0 0016 0c0-6-4-10-8-16z" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/></svg>',religious:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M16 4v24M10 10h12" stroke="#0F6E56" stroke-width="1.5" stroke-linecap="round"/><circle cx="16" cy="7" r="3" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.5"/></svg>',homeopathy:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="10" y="4" width="12" height="20" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.5"/><circle cx="16" cy="14" r="3" fill="#534AB7" opacity=".3"/></svg>',ayurveda:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M16 28V14" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/><path d="M16 14c-6-2-8-8-4-12 2 4 4 6 4 6s2-2 4-6c4 4 2 10-4 12z" fill="#EAF3DE" stroke="#3B6D11" stroke-width="1.5"/></svg>',phc:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="6" y="10" width="20" height="16" rx="2" fill="#E6F1FB" stroke="#185FA5" stroke-width="1.5"/><path d="M14 18v4M12 20h4" stroke="#185FA5" stroke-width="1.5" stroke-linecap="round"/></svg>',opd:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="4" y="8" width="24" height="18" rx="3" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/><circle cx="24" cy="8" r="4" fill="#D85A30" stroke="white" stroke-width="1.5"/></svg>',art:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="6" y="6" width="20" height="20" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.5"/><circle cx="16" cy="16" r="5" fill="white" stroke="#534AB7" stroke-width="1.5"/><circle cx="16" cy="16" r="2" fill="#534AB7"/></svg>',compounder:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="5" y="10" width="22" height="16" rx="3" fill="#FCEBEB" stroke="#A32D2D" stroke-width="1"/><path d="M10 16h12M10 20h8" stroke="#A32D2D" stroke-width="1" stroke-linecap="round" opacity=".5"/><circle cx="22" cy="8" r="5" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/><path d="M20 7h4M22 5v4" stroke="#BA7517" stroke-width=".8" stroke-linecap="round"/></svg>'};return I[t]||I.quack}
+function km2mi(k){return Math.round(k*0.621371*10)/10}
+
+// ===== DATA =====
+var KOLKATA=[22.55,88.36];
+
+var rural=[
+{n:"Taragunia",la:22.65,ln:88.85,d:"N. 24 Parganas",km:80,opd:"Basirhat",c:[{t:"quack",ti:"Unqualified practitioners (2-3)",de:"No training. Hormonal injections without monitoring."},{t:"religious",ti:"Faith healing / dargah",de:"Tabeez (amulets). Active. Infertility attributed to nasib."},{t:"homeopathy",ti:"Homeopathy",de:"Active practitioner."},{t:"ayurveda",ti:"Ayurveda",de:"Active. Herbal remedies for reproductive health."}],risk:"SEVERE arsenic. Basirhat subdivision, N. 24 Parganas.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria",dsk:"18–22"},
+{n:"Futullapur",la:22.73,ln:88.92,d:"N. 24 Parganas",km:82,opd:"Basirhat",c:[{t:"quack",ti:"Informal practitioners",de:"Baduria block. Pop ~4,589."},{t:"religious",ti:"Religious healers",de:"Active."},{t:"homeopathy",ti:"Homeopathy",de:"Active."}],risk:"SEVERE arsenic. Baduria block. Basirhat subdivision.",hc:"There is no doctor stationed in this village. A sub-centre staffed by one ANM provides immunisation, antenatal check-ups, and contraception distribution. A Primary Health Centre is located within 5 km with 1–2 MBBS doctors handling general outpatient care. but no gynaecologist and no specialist of any kind.<br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria",dsk:"18–22"},
+{n:"Pura Bhojpara",la:22.67,ln:88.87,d:"N. 24 Parganas",km:79,opd:"Basirhat",c:[{t:"quack",ti:"Informal practitioners",de:"Near Taragunia."},{t:"religious",ti:"Religious healers",de:"Active."}],risk:"SEVERE arsenic. Basirhat subdivision.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria",dsk:"15–20"},
+{n:"Ramchandrapur",la:22.72,ln:88.90,d:"N. 24 Parganas",km:81,opd:"Basirhat",c:[{t:"quack",ti:"Informal practitioners",de:"Baduria block. Ramchandrapur Uday GP."},{t:"religious",ti:"Religious healers",de:"Active."},{t:"homeopathy",ti:"Homeopathy",de:"Active."}],risk:"SEVERE arsenic. Baduria block.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria",dsk:"15–22"},
+{n:"Bhaduria",la:22.78,ln:88.95,d:"N. 24 Parganas",km:85,opd:"Basirhat",c:[{t:"quack",ti:"Informal practitioners",de:"Swarupnagar block. Pop ~4,900."},{t:"religious",ti:"Religious healers",de:"Active."},{t:"homeopathy",ti:"Homeopathy",de:"Active."}],risk:"SEVERE arsenic. Swarupnagar block. 28km from Basirhat town.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Swarupnagar",dsk:"20–28"},
+{n:"Shayestanagar",la:22.74,ln:88.91,d:"N. 24 Parganas",km:83,opd:"Basirhat",c:[{t:"quack",ti:"Informal practitioners",de:"Baduria block. Two gram panchayats."},{t:"religious",ti:"Religious healers",de:"Active."},{t:"ayurveda",ti:"Ayurveda",de:"Active."}],risk:"SEVERE arsenic. Baduria block. Basirhat subdivision.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria",dsk:"15–20"},
+{n:"Shreerampore",la:22.68,ln:88.86,d:"N. 24 Parganas",km:78,opd:"Basirhat",c:[{t:"quack",ti:"Informal practitioners",de:"Near Taragunia."},{t:"religious",ti:"Religious healers",de:"Active."}],risk:"SEVERE arsenic. Basirhat subdivision.",hc:"There is no doctor stationed in this village. A sub-centre staffed by one ANM provides immunisation, antenatal check-ups, and contraception distribution. A Primary Health Centre is located within 5 km with 1–2 MBBS doctors handling general outpatient care. but no gynaecologist and no specialist of any kind.<br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria",dsk:"15–22"},
+{n:"Maguruti",la:22.71,ln:88.89,d:"N. 24 Parganas",km:80,opd:"Basirhat",c:[{t:"quack",ti:"Informal practitioners",de:"Basirhat area."},{t:"religious",ti:"Religious healers",de:"Active."},{t:"homeopathy",ti:"Homeopathy",de:"Active."}],risk:"SEVERE arsenic. Basirhat subdivision.",hc:"There is no doctor stationed in this village. A sub-centre staffed by one ANM provides immunisation, antenatal check-ups, and contraception distribution. A Primary Health Centre is located within 5 km with 1–2 MBBS doctors handling general outpatient care. but no gynaecologist and no specialist of any kind.<br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria",dsk:"15–22"},
+{n:"Srikati",la:22.69,ln:88.84,d:"N. 24 Parganas",km:77,opd:"Basirhat",c:[{t:"quack",ti:"Informal practitioners",de:"Basirhat area."},{t:"religious",ti:"Religious healers",de:"Active."}],risk:"SEVERE arsenic. Basirhat subdivision.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria",dsk:"18–22"},
+{n:"Matia",la:22.67,ln:88.88,d:"N. 24 Parganas",km:79,opd:"Basirhat",c:[{t:"quack",ti:"Informal practitioners",de:"Basirhat II block. Shrinagar Metia GP."},{t:"religious",ti:"Religious healers",de:"Active."},{t:"homeopathy",ti:"Homeopathy",de:"Active."}],risk:"SEVERE arsenic. Basirhat II block.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Basirhat II",dsk:"8–12"},
+{n:"Malatipur",la:22.62,ln:88.82,d:"N. 24 Parganas",km:78,opd:"Basirhat",c:[{t:"quack",ti:"Quacks only",de:"Nearest PHC 10km."}],risk:"SEVERE arsenic. 53% tube wells above WHO limit.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria/Basirhat I",dsk:"10–15"},
+{n:"Eojnagar",la:22.64,ln:88.84,d:"N. 24 Parganas",km:77,opd:"Basirhat",c:[{t:"quack",ti:"Quacks (2-3)",de:"One sub-centre with ANM"},{t:"phc",ti:"Sub-centre (1 ANM)",de:"Immunization, antenatal only."}],risk:"SEVERE arsenic.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria/Basirhat I",dsk:"8–15"},
+{n:"Zafarpur",la:22.63,ln:88.80,d:"N. 24 Parganas",km:80,opd:"Basirhat",c:[{t:"quack",ti:"Quacks, traditional healer",de:"Muslim-majority. High stigma."}],risk:"SEVERE arsenic.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria",dsk:"12–18"},
+{n:"Champapukur",la:22.65,ln:88.88,d:"N. 24 Parganas",km:76,opd:"Basirhat",c:[{t:"quack",ti:"One quack",de:"No health facility of any kind."}],risk:"SEVERE arsenic. Border area.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria/Basirhat II",dsk:"10–18"},
+{n:"Madhabpur",la:22.74,ln:88.44,d:"N. 24 Parganas",km:32,opd:"Barasat",c:[{t:"quack",ti:"Quacks (1-2)",de:"8km from Barasat, no fertility care."}],risk:"SEVERE arsenic.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Deganga/Barasat I",dsk:"10–15"},
+{n:"Chandpur",la:22.68,ln:88.55,d:"N. 24 Parganas",km:38,opd:"Barasat",c:[{t:"quack",ti:"Quacks (3), govt dispensary",de:"Dispensary has no lab."}],risk:"SEVERE arsenic. Deganga block.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Deganga",dsk:"8–12"},
+{n:"Hadipur",la:22.72,ln:88.58,d:"N. 24 Parganas",km:40,opd:"Barasat",c:[{t:"quack",ti:"Quacks (2-3)",de:"Ayurveda dispensary open 2 days/week."},{t:"ayurveda",ti:"Ayurveda (irregular)",de:"No fertility protocols."}],risk:"SEVERE arsenic.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Barasat I/II",dsk:"5–10"},
+{n:"Baikunthapur",la:22.78,ln:88.42,d:"N. 24 Parganas",km:30,opd:"Barrackpore",c:[{t:"quack",ti:"Quacks, homeopathy",de:"No fertility diagnostics."}],risk:"SEVERE arsenic.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Barrackpore I/II",dsk:"5–10"},
+{n:"Shimulpur",la:22.79,ln:88.48,d:"N. 24 Parganas",km:32,opd:"Barrackpore",c:[{t:"quack",ti:"Quacks (4+), govt dispensary",de:"Pop ~20,800. Zero fertility care."}],risk:"SEVERE arsenic.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Barrackpore I/II",dsk:"5–8"},
+{n:"Bonga",la:22.95,ln:88.85,d:"N. 24 Parganas",km:70,opd:"Basirhat",c:[{t:"quack",ti:"Quacks, faith healers",de:"Border area. Bangladeshi patients enter nearby."}],risk:"SEVERE arsenic. Border recruitment.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Baduria/Swarupnagar",dsk:"15–22"},
+{n:"Hili",la:25.30,ln:88.85,d:"Dakshin Dinajpur",km:350,opd:"Balurghat (65km)",c:[{t:"quack",ti:"Quacks (2)",de:"Border town. Some cross from BD."},{t:"traditional",ti:"Kabiraj",de:"Herbal. Marginalized."},{t:"religious",ti:"Temple / mazaar",de:"Fertility shrines."}],risk:"MODERATE arsenic. 8-10hrs to any ART.",hc:"Hili has a Rural Hospital providing basic outpatient care and deliveries, but no specialist of any kind. Sub-centres in surrounding villages are staffed by ANMs providing immunisation, antenatal check-ups, and contraception distribution.<br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines. Being on the India-Bangladesh border, informal practitioners from across the border also operate in this area.<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway. This is the most remote fieldwork site. the nearest fertility clinic is in Siliguri, approximately 180 km away.",blk:"Hili",dsk:"80–100"},
+{n:"Haringhata",la:23.00,ln:88.50,d:"Nadia",km:62,opd:"Kalyani",c:[{t:"quack",ti:"Quacks, traditional healers",de:"Medical college 8km away but inaccessible."}],risk:"SEVERE arsenic. All 17 Nadia blocks affected.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Haringhata",dsk:"10–15"},
+{n:"Sundarban fringe",la:22.10,ln:88.25,d:"S. 24 Parganas",km:65,opd:"Diamond Harbour",c:[{t:"quack",ti:"Quacks, faith healers, TBAs",de:"Island access. boat required."}],risk:"SEVERE arsenic + saline water. Extreme isolation.",hc:"There is no doctor in this village. A sub-centre staffed by one ANM provides immunisation, antenatal check-ups, and contraception distribution. The nearest Primary Health Centre is often accessible only by boat, and many habitations are cut off entirely during monsoon and cyclone seasons.<br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples). The extreme isolation of this area means even these informal practitioners are scarce.<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Various Sundarban blocks",dsk:"30–60"},
+{n:"Kakdwip",la:21.87,ln:88.19,d:"S. 24 Parganas",km:90,opd:"Diamond Harbour",c:[{t:"quack",ti:"Quacks, traditional healers",de:"Fishing communities. 5+ hrs to ART."}],risk:"SEVERE arsenic + saline water.",hc:"Kakdwip town has a Sub-Divisional Hospital with basic outpatient care and a gynaecology outpatient clinic. but for the surrounding rural areas, the nearest facility is a sub-centre staffed by one ANM providing immunisation, antenatal check-ups, and contraception distribution.<br><br><br><br>In practice, day-to-day healthcare in the rural portions is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Kakdwip",dsk:"35–40"},
+{n:"Bhangar",la:22.42,ln:88.45,d:"S. 24 Parganas",km:25,opd:"Sonarpur",c:[{t:"quack",ti:"Quacks (2), sub-centre with ANM",de:"Waterlogged area. Agricultural."}],risk:"SEVERE arsenic. Water contamination from agriculture.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Bhangar I/II",dsk:"10–15"},
+{n:"Panskura",la:22.42,ln:87.78,d:"Purba Medinipur",km:92,opd:"Kolaghat",c:[{t:"quack",ti:"Quacks, ojha",de:"Near thermal plant. Toxin exposure."}],risk:"LOW arsenic but HIGH industrial toxins.",hc:"The town area has a Sub-Divisional Hospital with basic outpatient services and a gynaecology clinic, but for the rural population in surrounding villages, the nearest facility is a sub-centre staffed by one ANM providing immunisation, antenatal check-ups, and contraception distribution.<br><br><br><br>In practice, day-to-day healthcare in the rural areas is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Panskura I/II",dsk:"8–15"},
+{n:"Nandigram",la:22.28,ln:87.80,d:"Purba Medinipur",km:105,opd:"Tamluk",c:[{t:"quack",ti:"Quacks, faith healers",de:"Famous for land struggle. healthcare never improved."}],risk:"Hindu majority 86.2%. Same structural absence.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Nandigram I/II",dsk:"30–40"},
+{n:"Haripal",la:22.83,ln:88.18,d:"Hooghly",km:60,opd:"Singur",c:[{t:"quack",ti:"Quacks, temple healing",de:"Hindu majority. Same absence."}],risk:"Hindu 83.7%. Demonstrates structural nature.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Haripal",dsk:"10–15"},
+{n:"Nokpul",la:22.85,ln:88.62,d:"N. 24 Parganas",km:55,opd:"Naihati",c:[{t:"quack",ti:"Quacks, faith healers",de:"Habra block. Border area."}],risk:"SEVERE arsenic.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Near Naihati",dsk:"3–8"},
+{n:"Budge Budge rural",la:22.47,ln:88.17,d:"S. 24 Parganas",km:28,opd:"Bajbaj",c:[{t:"quack",ti:"Quacks (3)",de:"Industrial pollution."}],risk:"SEVERE arsenic + industrial.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Budge Budge I/II",dsk:"8–15"},
+{n:"Falta",la:22.23,ln:88.10,d:"S. 24 Parganas",km:60,opd:"Diamond Harbour",c:[{t:"quack",ti:"Quacks, faith healers",de:"SEZ area but no health spillover."}],risk:"SEVERE arsenic.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Falta",dsk:"15–20"},
+{n:"Contai rural",la:21.78,ln:87.72,d:"Purba Medinipur",km:168,opd:"Kanthi",c:[{t:"quack",ti:"Quacks (2), temple healing",de:"Coastal fishing."}],risk:"Hindu 86.2%. Coastal exposure.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Contai",dsk:"5–15"},
+{n:"Krishnaganj",la:23.22,ln:88.48,d:"Nadia",km:92,opd:"Shantipur",c:[{t:"quack",ti:"Quacks, homeopathy",de:"Weaving belt. Low income."}],risk:"SEVERE arsenic.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Krishnaganj",dsk:"15–20"},
+{n:"Lalbag (Murshidabad)",la:24.18,ln:88.30,d:"Murshidabad",km:210,opd:"Berhampore",c:[{t:"quack",ti:"Quacks (3-4)",de:"Muslim majority. No trained doctor."},{t:"religious",ti:"Maulvi / dargah healing",de:"Fertility attributed to divine will. Tabeez, amulets."},{t:"traditional",ti:"Herbal practitioners",de:"Declining. No successor generation."}],risk:"SEVERE arsenic. Murshidabad: 66.3% Muslim. 54.6% tube wells above safe limit. Zero ART infrastructure in entire district.",hc:"There is no doctor in this village. The nearest government facility is a sub-centre with one ANM (Auxiliary Nurse Midwife). She provides immunisation, antenatal check-ups and contraception distribution. <br><br><br><br>In practice, day-to-day healthcare is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Lalbag",dsk:"8–15"},
+{n:"Domkal (Murshidabad)",la:24.13,ln:88.55,d:"Murshidabad",km:220,opd:"Berhampore",c:[{t:"quack",ti:"Quacks (2-3)",de:"Border area. Padma river bank."},{t:"religious",ti:"Fakir / peer healing",de:"Strong tradition of spiritual fertility remedies."}],risk:"SEVERE arsenic. Muslim majority. Border with Bangladesh. Extreme distance from ART.",hc:"The town area has a Sub-Divisional Hospital with basic outpatient services and a gynaecology clinic, but for the rural population in surrounding villages, the nearest facility is a sub-centre staffed by one ANM providing immunisation, antenatal check-ups, and contraception distribution.<br><br><br><br>In practice, day-to-day healthcare in the rural areas is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Domkal",dsk:"35–40"},
+{n:"Jangipur (Murshidabad)",la:24.47,ln:88.07,d:"Murshidabad",km:250,opd:"Berhampore (50km)",c:[{t:"quack",ti:"Quacks (2)",de:"Farakka barrage area. Water contamination."},{t:"traditional",ti:"Kabiraj",de:"Herbal. Marginalized."}],risk:"SEVERE arsenic. Farakka barrage environmental disruption. Muslim majority. 250km to Kolkata.",hc:"The town area has a Sub-Divisional Hospital with basic outpatient services and a gynaecology clinic, but for the rural population in surrounding villages, the nearest facility is a sub-centre staffed by one ANM providing immunisation, antenatal check-ups, and contraception distribution.<br><br><br><br>In practice, day-to-day healthcare in the rural areas is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Jangipur",dsk:"30–35"},
+{n:"Kandi (Murshidabad)",la:23.95,ln:88.04,d:"Murshidabad",km:190,opd:"Berhampore (30km)",c:[{t:"quack",ti:"Quacks (2-3)",de:"Agricultural area. No diagnostic facility."},{t:"religious",ti:"Mazaar visits",de:"Fertility shrines. Community reinforces spiritual explanation."}],risk:"SEVERE arsenic. Murshidabad 66.3% Muslim. Government neglect of reproductive healthcare in Muslim-majority district.",hc:"The town area has a Sub-Divisional Hospital with basic outpatient services and a gynaecology clinic, but for the rural population in surrounding villages, the nearest facility is a sub-centre staffed by one ANM providing immunisation, antenatal check-ups, and contraception distribution.<br><br><br><br>In practice, day-to-day healthcare in the rural areas is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Kandi",dsk:"40–50"},
+{n:"Raghunathganj (Murshidabad)",la:24.46,ln:88.11,d:"Murshidabad",km:240,opd:"Berhampore (45km)",c:[{t:"quack",ti:"Quacks",de:"Padma bank. Arsenic maximum recorded here (3003 µg/L)."},{t:"religious",ti:"Religious healing",de:"Dargah visits."}],risk:"EXTREME arsenic. highest recorded levels in WB (3003 µg/L in Raghunathganj I block). Muslim majority. Zero reproductive healthcare.",hc:"The town area has a Sub-Divisional Hospital with basic outpatient services and a gynaecology clinic, but for the rural population in surrounding villages, the nearest facility is a sub-centre staffed by one ANM providing immunisation, antenatal check-ups, and contraception distribution.<br><br><br><br>In practice, day-to-day healthcare in the rural areas is provided by unqualified practitioners. locally known as \\'village doctors\\'. who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Homeopathy practitioners are common. Some Ayurvedic practitioners are also present. For fertility-related concerns, women frequently visit faith healers and religious shrines (dargahs and temples).<br><br><br><br>There are no infertility services of any kind. No testing, no diagnosis, no treatment, no specialist, no referral pathway.",blk:"Raghunathganj",dsk:"25–30"}
+];
+
+var semi=[
+{n:"Basirhat",la:22.66,ln:88.86,d:"N. 24 Parganas",km:75,note:"Dual: OPD + rural outreach. 600-bed DH but 0 fertility dept. Highest Muslim concentration.",subdiv:"Basirhat",govt:"Basirhat District Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:85},
+{n:"Barasat",la:22.72,ln:88.48,d:"N. 24 Parganas",km:30,note:"District HQ. Medical college, ObGyn for deliveries. NO fertility clinic. Block: Hindu 57%, Muslim 42%.",subdiv:"Barasat",govt:"Barasat Government Medical College & Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:30},
+{n:"Barrackpore",la:22.764,ln:88.378,d:"N. 24 Parganas",km:25,note:"Closest OPD. High volume. Military cantonment nearby. inaccessible.",subdiv:"Barrackpore",govt:"Dr. B.N. Bose Sub-Divisional Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:22},
+{n:"Naihati",la:22.89,ln:88.42,d:"N. 24 Parganas",km:40,note:"Industrial. Jute workers' families.",subdiv:"Barrackpore",govt:"Naihati State General Hospital is available. IVF, IUI, and advanced fertility treatment are not available.",km2:38},
+{n:"Kalyani",la:22.975,ln:88.434,d:"Nadia",km:60,note:"Medical college nearby but not involved in camps.",subdiv:"Kalyani",govt:"College of Medicine & JNM Hospital (Medical College) has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:60},
+{n:"Krishnanagar",la:23.40,ln:88.52,d:"Nadia",km:110,note:"District HQ. Largest catchment. 50km radius.",subdiv:"Krishnanagar",govt:"Nadia District Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:105},
+{n:"Shantipur",la:23.25,ln:88.43,d:"Nadia",km:95,note:"Weaving town. High stigma.",subdiv:"Krishnanagar",govt:"Shantipur State General Hospital is available. IVF, IUI, and advanced fertility treatment are not available.",km2:95},
+{n:"Uluberia",la:22.47,ln:88.11,d:"Howrah",km:50,note:"Across Hooghly. River = barrier.",subdiv:"Uluberia",govt:"SCCGMC&H (Medical College, since 2022) has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:50},
+{n:"Kolaghat",la:22.44,ln:87.88,d:"Purba Medinipur",km:85,note:"Furthest SW. Near thermal plant.",subdiv:"Tamluk",govt:"Paikpari Rural Hospital is available. IVF, IUI, and advanced fertility treatment are not available.",km2:80},
+{n:"Diamond Harbour",la:22.19,ln:88.19,d:"S. 24 Parganas",km:55,note:"Sundarban gateway. Boat + bus to reach.",subdiv:"Diamond Harbour",govt:"Diamond Harbour Government Medical College has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:55},
+{n:"Sonarpur",la:22.44,ln:88.42,d:"S. 24 Parganas",km:22,note:"Peri-urban. Rented clinic space.",subdiv:"Baruipur",govt:"No confirmed government hospital in Sonarpur itself. IVF, IUI, and advanced fertility treatment are not available.",km2:22},
+{n:"Baraipur",la:22.36,ln:88.43,d:"S. 24 Parganas",km:35,note:"Agricultural. Women attend between farming.",subdiv:"Baruipur",govt:"Baruipur Sub-Divisional Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:32},
+{n:"Sodpur",la:22.70,ln:88.39,d:"N. 24 Parganas",km:20,note:"Industrial suburb.",subdiv:"Barrackpore",govt:"Panihati State General Hospital is located nearby. IVF, IUI, and advanced fertility treatment are not available.",km2:16},
+{n:"Tamluk",la:22.30,ln:87.92,d:"Purba Medinipur",km:100,note:"District HQ. Hindu majority. same lack.",subdiv:"Tamluk",govt:"Tamluk Government Medical College & Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:105},
+{n:"Bajbaj",la:22.48,ln:88.18,d:"Howrah",km:30,note:"Industrial. Near Kolkata port.",subdiv:"Uluberia",govt:"Budge Budge ESI Hospital is available. IVF, IUI, and advanced fertility treatment are not available.",km2:22},
+{n:"Belgaria",la:22.67,ln:88.38,d:"N. 24 Parganas",km:18,note:"Peri-urban. Dense.",subdiv:"Barrackpore",govt:"No confirmed government hospital in Belgaria itself. The nearest facility is CMSDH Kamarhati. IVF, IUI, and advanced fertility treatment are not available.",km2:17},
+{n:"Fatehpur",la:22.75,ln:88.45,d:"N. 24 Parganas",km:28,note:"Near Barasat. Mixed area.",subdiv:"Basirhat",govt:"No confirmed district or sub-divisional hospital. Likely served by a block primary health centre. IVF, IUI, and advanced fertility treatment are not available.",km2:55},
+{n:"Jagaddal",la:22.82,ln:88.38,d:"N. 24 Parganas",km:32,note:"Jute mills. Working class.",subdiv:"Barrackpore",govt:"Bhatpara State General Hospital is located nearby. IVF, IUI, and advanced fertility treatment are not available.",km2:27},
+{n:"Singur",la:22.81,ln:88.23,d:"Hooghly",km:55,note:"Tata controversy area. Healthcare unchanged.",subdiv:"Chinsurah",govt:"Singur Rural Hospital is available. IVF, IUI, and advanced fertility treatment are not available.",km2:45},
+{n:"Medinipur",la:22.42,ln:87.32,d:"Paschim Medinipur",km:130,note:"District town. Some infrastructure, no fertility specialist.",subdiv:"Medinipur Sadar",govt:"Midnapore Medical College & Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:125},
+{n:"Kanthi",la:21.79,ln:87.75,d:"Purba Medinipur",km:165,note:"Coastal. Fishing communities.",subdiv:"Contai",govt:"Contai Sub-Divisional Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:155},
+{n:"Digha",la:21.63,ln:87.51,d:"Purba Medinipur",km:190,note:"Beach town. Seasonal.",subdiv:"Contai",govt:"Digha State General Hospital is available. IVF, IUI, and advanced fertility treatment are not available.",km2:185},
+{n:"Malda",la:25.01,ln:88.14,d:"Malda",km:330,note:"Muslim majority 51.3%. DH but no fertility dept. Self-refer to Kolkata.",subdiv:"Malda Sadar",govt:"Malda Medical College & Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:310},
+{n:"Durgapur",la:23.55,ln:87.32,d:"Paschim Bardhaman",km:170,note:"Steel city. No ART. Self-refer.",subdiv:"Durgapur",govt:"Durgapur Sub-Divisional Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:165},
+{n:"Asansol",la:23.69,ln:86.95,d:"Paschim Bardhaman",km:210,note:"Coal belt. No ART infrastructure.",subdiv:"Asansol",govt:"Asansol District Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:180},
+{n:"Berhampore",la:24.10,ln:88.25,d:"Murshidabad",km:200,note:"Muslim 66.3%. District HQ. District hospital but zero fertility department or specialist. 200km to Kolkata. Entire Murshidabad district. population 7.1 million. has no ART facility whatsoever.",subdiv:"Berhampore",govt:"Murshidabad Medical College & Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:200},
+{n:"Murshidabad town",la:24.18,ln:88.27,d:"Murshidabad",km:210,note:"Historic Nawabi capital. Muslim majority. Severe arsenic contamination (54.6% tube wells unsafe). No reproductive healthcare infrastructure despite being one of WB's most populous districts.",subdiv:"Lalbag",govt:"No separate hospital in Murshidabad town. Served by Murshidabad Medical College & Hospital in Berhampore, approximately 10 km away. IVF, IUI, and advanced fertility treatment are not available.",km2:205}
+,
+{n:"Gobardanga",la:22.87,ln:88.76,d:"N. 24 Parganas",km:65,note:"Semi-urban town near Bangladesh border. OPD screening camps held here.",subdiv:"Bangaon",govt:"Gobardanga Sub-Divisional Hospital is available. IVF, IUI, and advanced fertility treatment are not available.",km2:65},
+{n:"Balurghat",la:25.22,ln:88.77,d:"Dakshin Dinajpur",km:350,note:"District town. Nearest hospital to Hili border area.",subdiv:"Balurghat",govt:"Balurghat District Hospital has a gynaecology department. IVF, IUI, and advanced fertility treatment are not available.",km2:350},
+{n:"Sundarban",la:22.00,ln:88.60,d:"S. 24 Parganas",km:90,note:"Island communities. Extreme isolation. Boat, bus, and train required to reach any care.",subdiv:"Kakdwip/Namkhana",govt:"No hospital in island areas. Nearest facilities require boat travel. IVF, IUI, and advanced fertility treatment are not available.",km2:90}
+];
+
+var border=[
+{n:"Hyderabad",la:17.39,ln:78.49,d:"Telangana",fn:"Alternative ART destination for urban Kolkata patients seeking specialised treatment.",note:"National-level ART hub."},
+{n:"Vellore",la:12.92,ln:79.13,d:"Tamil Nadu",fn:"CMC Vellore. Alternative for urban patients.",note:"Christian Medical College."},
+{n:"Chennai",la:13.08,ln:80.27,d:"Tamil Nadu",fn:"Major national ART hub. Urban Kolkata patients travel here for specialised treatment.",note:"Multiple large ART centres."}
+];
+
+var global_pts=[];
+
+// Generate Kolkata ART cluster
+var artClinics=[];
+(function(){var z=[{cx:22.538,cy:88.350,r:.008,n:5},{cx:22.524,cy:88.348,r:.006,n:4},{cx:22.572,cy:88.395,r:.010,n:4},{cx:22.576,cy:88.410,r:.008,n:4},{cx:22.555,cy:88.368,r:.007,n:3},{cx:22.510,cy:88.363,r:.008,n:3},{cx:22.587,cy:88.317,r:.006,n:3},{cx:22.601,cy:88.405,r:.007,n:2},{cx:22.545,cy:88.342,r:.006,n:2},{cx:22.530,cy:88.380,r:.006,n:2}];z.forEach(function(q){for(var i=0;i<q.n;i++){var a=(i/q.n)*Math.PI*2+Math.random()*.5,d=Math.random()*q.r;artClinics.push({la:q.cx+Math.sin(a)*d,ln:q.cy+Math.cos(a)*d})}})})();
+
+// ===== MAP INIT =====
+var map=L.map('map',{zoomControl:false,zoomSnap:.25}).setView([23.5,88.0],7);
+L.control.zoom({position:'bottomright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM, CARTO',maxZoom:18}).addTo(map);
+
+function mI(c,r,bw){return L.divIcon({className:'',html:'<div style="width:'+r*2+'px;height:'+r*2+'px;background:'+c+';border:'+(bw||2)+'px solid white;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer;transition:transform .15s" onmouseover="this.style.transform=\'scale(1.3)\'" onmouseout="this.style.transform=\'scale(1)\'"></div>',iconSize:[r*2,r*2],iconAnchor:[r,r]})}
+function mIDiamond(c,sz){return L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;background:'+c+';transform:rotate(45deg);border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer" onmouseover="this.style.transform=\'rotate(45deg) scale(1.3)\'" onmouseout="this.style.transform=\'rotate(45deg) scale(1)\'"></div>',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]})}
+function mISquare(c,sz){return L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;background:'+c+';border:2px solid white;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer;transition:transform .15s" onmouseover="this.style.transform=\'scale(1.3)\'" onmouseout="this.style.transform=\'scale(1)\'"></div>',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]})}
+function mITri(c){return L.divIcon({className:'',html:'<div style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:14px solid '+c+';filter:drop-shadow(0 1px 2px rgba(0,0,0,.3));cursor:pointer"></div>',iconSize:[14,14],iconAnchor:[7,14]})}
+function mIStar(c){return L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:'+c+';clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))"></div>',iconSize:[16,16],iconAnchor:[8,8]})}
+function mICross(c,sz){return L.divIcon({className:'',html:'<div style="position:relative;width:'+sz+'px;height:'+sz+'px;cursor:pointer" onmouseover="this.style.transform=\'scale(1.3)\'" onmouseout="this.style.transform=\'scale(1)\'"><div style="position:absolute;top:'+Math.round(sz*.3)+'px;left:0;width:'+sz+'px;height:'+Math.round(sz*.4)+'px;background:'+c+';border:1.5px solid white;border-radius:2px"></div><div style="position:absolute;top:0;left:'+Math.round(sz*.3)+'px;width:'+Math.round(sz*.4)+'px;height:'+sz+'px;background:'+c+';border:1.5px solid white;border-radius:2px"></div></div>',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]})}
+
+var lg={rural:L.layerGroup(),semi:L.layerGroup(),urban:L.layerGroup(),border:L.layerGroup(),global:L.layerGroup()};
+
+// Rural villages. RED DIAMONDS (quacks, no formal medicine)
+rural.forEach(function(v){L.marker([v.la,v.ln],{icon:mIDiamond('#A32D2D',12)}).on('click',function(){sV(v)}).bindTooltip(v.n,{direction:'top',offset:[0,-10],className:'tip'}).addTo(lg.rural)});
+// Semi-urban OPD. AMBER SQUARES (mix of quacks-with-clinics + MBBS non-specialists)
+semi.forEach(function(s){L.marker([s.la,s.ln],{icon:mISquare('#BA7517',14)}).on('click',function(){sS(s)}).bindTooltip(s.n,{direction:'top',offset:[0,-10],className:'tip'}).addTo(lg.semi)});
+// Urban ART clinics. PURPLE CROSS (qualified specialists)
+artClinics.forEach(function(c){L.marker([c.la,c.ln],{icon:mICross('#534AB7',12)}).on('click',sU).addTo(lg.urban)});
+// Border markers
+border.forEach(function(b){L.marker([b.la,b.ln],{icon:mITri('#0F6E56')}).on('click',function(){sB(b)}).bindTooltip(b.n,{direction:'top',offset:[0,-14],className:'tip'}).addTo(lg.border)});
+// Global markers
+global_pts.forEach(function(g){L.marker([g.la,g.ln],{icon:mIStar('#185FA5')}).on('click',function(){sG(g)}).bindTooltip(g.n,{direction:'top',offset:[0,-8],className:'tip'}).addTo(lg.global)});
+
+['rural','semi','urban'].forEach(function(k){lg[k].addTo(map)});
+
+// ===== LAYER TOGGLE BUTTONS =====
+var btnHtml='';
+// Rural villages - red diamond. NO "quacks" label
+btnHtml+='<span class="tbtn on" style="background:#FCEBEB;color:#501313" onclick="tgl(\'rural\',this)"><span style="display:inline-block;width:8px;height:8px;background:#A32D2D;transform:rotate(45deg);border:1px solid white"></span> Rural villages</span>';
+// Semi-urban - amber square
+btnHtml+='<span class="tbtn on" style="background:#FAEEDA;color:#412402" onclick="tgl(\'semi\',this)"><span style="display:inline-block;width:8px;height:8px;background:#BA7517;border-radius:2px;border:1px solid white"></span> Semi-urban OPD</span>';
+// Urban ART - purple cross
+btnHtml+='<span class="tbtn on" style="background:#EEEDFE;color:#26215C" onclick="tgl(\'urban\',this)"><span style="display:inline-block;width:10px;height:10px;position:relative"><span style="position:absolute;top:3px;left:0;width:10px;height:4px;background:#534AB7;border-radius:1px"></span><span style="position:absolute;top:0;left:3px;width:4px;height:10px;background:#534AB7;border-radius:1px"></span></span> Urban ART (150+)</span>';
+
+
+// Flow toggles. grouped in dropdown
+btnHtml+='<span style="position:relative;display:inline-block"><button id="flowTogBtn" style="font-size:12px;padding:4px 10px;border:1.5px solid rgba(0,0,0,.12);border-radius:14px;background:rgba(255,255,255,.9);cursor:pointer;font-family:var(--sans);font-weight:500;color:var(--text2)" onclick="var d=document.getElementById(\'flowDrop\');if(d.style.display===\'block\'){d.style.display=\'none\'}else{var r=this.getBoundingClientRect();d.style.top=r.bottom+4+\'px\';d.style.right=(window.innerWidth-r.right)+\'px\';d.style.display=\'block\'}">Flows ▾</button><div id="flowDrop" style="display:none;position:fixed;background:white;border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:10px 14px;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:9999;white-space:nowrap"><label style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:6px"><input type="checkbox" checked onchange="flowDown=this.checked" style="accent-color:#7B2D8E;width:13px;height:13px"><span style="display:inline-block;width:10px;height:10px;background:#7B2D8E;border-radius:50%"></span>Doctors → outreach</label><label style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:6px"><input type="checkbox" checked onchange="flowUp=this.checked" style="accent-color:#B22222;width:13px;height:13px"><span style="display:inline-block;width:10px;height:10px;background:#B22222;border-radius:50%"></span>Rural patients → OPD → Kolkata</label><label style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" checked onchange="flowShop=this.checked" style="accent-color:#E6196E;width:13px;height:13px"><span style="display:inline-block;width:10px;height:10px;background:#E6196E;border-radius:50%"></span>Urban patients</label></div></span>';
+document.getElementById('layerBtns').innerHTML=btnHtml;
+// Close flows dropdown when clicking elsewhere
+document.addEventListener('click',function(e){if(!e.target.closest('#flowTogBtn')&&!e.target.closest('#flowDrop'))document.getElementById('flowDrop').style.display='none'});
+
+function tgl(k,el){L_STATE[k]=L_STATE[k]?0:1;el.classList.toggle('on');el.classList.toggle('off');L_STATE[k]?map.addLayer(lg[k]):map.removeLayer(lg[k])}
+
+// ===== ANIMATED FLOWS =====
+var cv=document.getElementById('fc'),cx=cv.getContext('2d');
+function rsz(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*devicePixelRatio;cv.height=r.height*devicePixelRatio;cv.style.width=r.width+'px';cv.style.height=r.height+'px';cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+rsz();window.addEventListener('resize',rsz);map.on('move zoom moveend zoomend resize',rsz);
+function lp(a,b){var p=map.latLngToContainerPoint([a,b]);return{x:p.x,y:p.y}}
+function bz(a,c,b,t){var u=1-t;return{x:u*u*a.x+2*u*t*c.x+t*t*b.x,y:u*u*a.y+2*u*t*c.y+t*t*b.y}}
+function cp(a,b,d){var mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,ds=Math.sqrt(dx*dx+dy*dy)||1;return{x:mx-dy/ds*ds*.25*d,y:my+dx/ds*ds*.25*d}}
+function curveLen(a,c,b){var l=0,px=a.x,py=a.y;for(var i=1;i<=20;i++){var t=i/20,u=1-t,x=u*u*a.x+2*u*t*c.x+t*t*b.x,y=u*u*a.y+2*u*t*c.y+t*t*b.y;l+=Math.sqrt((x-px)*(x-px)+(y-py)*(y-py));px=x;py=y}return l}
+
+// Preload not needed - using simple canvas dots
+var startTime=Date.now(),TRAVEL_MS=9000;
+function draw(){cx.clearRect(0,0,cv.width/devicePixelRatio,cv.height/devicePixelRatio);
+var now=Date.now(),el=(now-startTime)/TRAVEL_MS;
+var kp=lp(KOLKATA[0],KOLKATA[1]);
+
+// === URBAN PATIENTS moving between Kolkata clinics (HOT PINK #E6196E) ===
+if(flowShop&&L_STATE.urban&&artClinics.length>4){
+for(var ui=0;ui<8;ui++){
+var a1=artClinics[ui*3%artClinics.length],a2=artClinics[(ui*3+7)%artClinics.length];
+var p1=lp(a1.la,a1.ln),p2=lp(a2.la,a2.ln);
+var cu=cp(p1,p2,(ui%2===0?1:-1)*0.6);
+cx.beginPath();cx.moveTo(p1.x,p1.y);cx.quadraticCurveTo(cu.x,cu.y,p2.x,p2.y);
+cx.strokeStyle='rgba(230,25,110,0.12)';cx.lineWidth=0.8;cx.stroke();
+var tu=((el*1.2+ui*.12)%1),ptu=bz(p1,cu,p2,tu);
+cx.beginPath();cx.arc(ptu.x,ptu.y,3.5,0,Math.PI*2);cx.fillStyle='rgba(230,25,110,0.75)';cx.fill()}}
+
+// === URBAN DOCTORS moving Kolkata → semi-urban OPD camps (DEEP PURPLE #7B2D8E) ===
+if(flowDown&&L_STATE.semi){semi.forEach(function(s,i){var p=lp(s.la,s.ln),c=cp(kp,p,1),cl=curveLen(kp,c,p),sp=Math.min(1,200/Math.max(cl,1));cx.beginPath();cx.moveTo(kp.x,kp.y);cx.quadraticCurveTo(c.x,c.y,p.x,p.y);cx.strokeStyle='rgba(123,45,142,0.1)';cx.lineWidth=1.2;cx.setLineDash([4,4]);cx.stroke();cx.setLineDash([]);var t=((el*sp+i*.13)%1),pt=bz(kp,c,p,t);cx.beginPath();cx.arc(pt.x,pt.y,3.5,0,Math.PI*2);cx.fillStyle='rgba(123,45,142,0.75)';cx.fill()})}
+
+
+// === URBAN DOCTORS moving Kolkata → Global certifications and back (DEEP PURPLE) ===
+if(flowDown&&L_STATE.global){global_pts.forEach(function(g,i){var pg=lp(g.la,g.ln),cg=cp(kp,pg,1),clg=curveLen(kp,cg,pg),spg=Math.min(1,200/Math.max(clg,1));
+cx.beginPath();cx.moveTo(kp.x,kp.y);cx.quadraticCurveTo(cg.x,cg.y,pg.x,pg.y);cx.strokeStyle='rgba(123,45,142,0.12)';cx.lineWidth=1.2;cx.setLineDash([5,4]);cx.stroke();cx.setLineDash([]);
+var tg=((el*spg+i*.3)%1),ptg=bz(kp,cg,pg,tg);cx.beginPath();cx.arc(ptg.x,ptg.y,3.5,0,Math.PI*2);cx.fillStyle='rgba(123,45,142,0.75)';cx.fill();
+var cr=cp(pg,kp,-1);var tr=((el*spg+i*.3+.5)%1),ptr=bz(pg,cr,kp,tr);
+cx.beginPath();cx.moveTo(pg.x,pg.y);cx.quadraticCurveTo(cr.x,cr.y,kp.x,kp.y);cx.strokeStyle='rgba(123,45,142,0.06)';cx.lineWidth=.8;cx.stroke();
+cx.beginPath();cx.arc(ptr.x,ptr.y,3,0,Math.PI*2);cx.fillStyle='rgba(123,45,142,0.5)';cx.fill()})}
+
+// === STEP 1: PATIENTS moving RURAL → nearest SEMI-RURAL OPD (dark blue, SOLID line, larger dots) ===
+if(flowUp&&L_STATE.rural){rural.forEach(function(v,i){
+// Find nearest semi-urban OPD camp for this village
+var nearest=semi[0],minD=9999;
+semi.forEach(function(s){var d=Math.sqrt(Math.pow(v.la-s.la,2)+Math.pow(v.ln-s.ln,2));if(d<minD){minD=d;nearest=s}});
+var p=lp(v.la,v.ln),sp_pt=lp(nearest.la,nearest.ln),c=cp(p,sp_pt,-0.8),cl=curveLen(p,c,sp_pt),sp=Math.min(1,200/Math.max(cl,1));
+// Solid line for first leg of journey
+cx.beginPath();cx.moveTo(p.x,p.y);cx.quadraticCurveTo(c.x,c.y,sp_pt.x,sp_pt.y);cx.strokeStyle='rgba(178,34,34,0.18)';cx.lineWidth=1.5;cx.stroke();
+var t=((el*sp+i*.17)%1),pt=bz(p,c,sp_pt,t);cx.beginPath();cx.arc(pt.x,pt.y,3.5,0,Math.PI*2);cx.fillStyle='rgba(178,34,34,0.85)';cx.fill()})}
+
+// === STEP 2: PATIENTS moving SEMI-RURAL OPD → KOLKATA (red, DASHED line) ===
+if(flowUp&&L_STATE.semi){semi.forEach(function(s,i){var p=lp(s.la,s.ln),c=cp(p,kp,-.5),cl=curveLen(p,c,kp),sp=Math.min(1,200/Math.max(cl,1));
+// Dashed line for second leg. referred onward to Kolkata
+cx.beginPath();cx.moveTo(p.x,p.y);cx.quadraticCurveTo(c.x,c.y,kp.x,kp.y);cx.strokeStyle='rgba(178,34,34,0.2)';cx.lineWidth=1.5;cx.setLineDash([5,4]);cx.stroke();cx.setLineDash([]);
+var t=((el*sp*.8+i*.11)%1),pt=bz(p,c,kp,t);cx.beginPath();cx.arc(pt.x,pt.y,3,0,Math.PI*2);cx.fillStyle='rgba(178,34,34,0.8)';cx.fill()})}
+
+
+// === URBAN PATIENTS moving Kolkata → Hyderabad, Vellore, Chennai (HOT PINK) ===
+if(flowShop&&L_STATE.border){
+['Hyderabad','Vellore','Chennai'].forEach(function(city,i){
+var b=border.find(function(x){return x.n===city});
+if(b){var pb=lp(b.la,b.ln),cb=cp(kp,pb,0.6),clb=curveLen(kp,cb,pb),spb=Math.min(1,200/Math.max(clb,1));
+cx.beginPath();cx.moveTo(kp.x,kp.y);cx.quadraticCurveTo(cb.x,cb.y,pb.x,pb.y);cx.strokeStyle='rgba(230,25,110,0.15)';cx.lineWidth=1.5;cx.setLineDash([6,4]);cx.stroke();cx.setLineDash([]);
+for(var ud=0;ud<2;ud++){var tu=((el*spb+ud*.5+i*.3)%1),ptu=bz(kp,cb,pb,tu);cx.beginPath();cx.arc(ptu.x,ptu.y,3.5,0,Math.PI*2);cx.fillStyle='rgba(230,25,110,0.8)';cx.fill()}}
+})}
+
+requestAnimationFrame(draw)}draw();map.on('move zoom moveend zoomend',draw);
+
+// ===== PANELS =====
+
+function oP(h){document.getElementById('pc').innerHTML=h;document.getElementById('pnl').classList.add('open')}
+function cP(){document.getElementById('pnl').classList.remove('open')}
+
+function sV(v){
+var html='<h3>'+v.n+'</h3><span class="tag" style="background:var(--coralL);color:var(--coralD)">Rural village</span>';
+html+='<div class="big" style="color:var(--coral)">~'+v.km+' km <span style="font-size:13px;color:var(--text3)">from Kolkata (approx.)</span></div>';
+html+='<div class="dv"></div>';
+html+='<div class="row"><span class="rl">District</span><span class="rv">'+v.d+'</span></div>';
+html+='<div class="row"><span class="rl">Block</span><span class="rv">'+(v.blk||'')+'</span></div>';
+html+='<div class="row"><span class="rl">Nearest semi-urban town</span><span class="rv">'+v.opd+'</span></div>';
+html+='<p class="desc" style="font-size:10px;color:var(--text3);margin-top:4px">Where Kolkata doctors hold monthly screening camps</p>';
+html+='<div class="row"><span class="rl">Distance to '+v.opd+'</span><span class="rv">~'+(v.dsk||'')+' km</span></div>';
+
+html+='<div class="dv"></div>';
+html+='<p class="desc">Under India\'s public health standards, the village is expected to be served by a sub-centre staffed by an ANM (Auxiliary Nurse Midwife) providing immunisation, antenatal check-ups, and contraception distribution, none of which address infertility.</p>';
+html+='<p class="desc">In practice, fertility care is provided by unqualified practitioners, locally known as "village doctors," who previously worked as assistants or compounders with qualified doctors and have since opened their own small clinics. Women also visit homeopathy and Ayurvedic practitioners and faith healers who are available in the village.</p>';
+
+html+='<div class="dv"></div>';
+html+='<div class="sec" style="background:var(--redL)"><h4 style="color:var(--red)">Fertility and reproductive care</h4><p class="desc" style="color:var(--red)">There are no formal infertility services in villages of this type, including testing, diagnosis, treatment, specialist care, or a referral pathway.</p></div>';
+html+='<div class="sec" style="background:var(--amberL)"><h4 style="color:var(--amber)">What is available</h4>';
+html+='<div class="cr"><div class="ci">'+ico('quack')+'</div><div><div class="ct">Unqualified practitioners</div><div class="cd">Locally known as "village doctors." Previously worked as assistants or compounders with qualified doctors. Now run their own small clinics.</div></div></div>';
+html+='<div class="cr"><div class="ci">'+ico('homeopathy')+'</div><div><div class="ct">Homeopathy practitioners</div><div class="cd">Common in the village. Provide homeopathic medicines for fertility concerns.</div></div></div>';
+html+='<div class="cr"><div class="ci">'+ico('ayurveda')+'</div><div><div class="ct">Ayurvedic practitioners</div><div class="cd">Present in some villages. Herbal remedies for general health. No fertility specialisation.</div></div></div>';
+html+='<div class="cr"><div class="ci">'+ico('religious')+'</div><div><div class="ct">Faith healers and religious shrines</div><div class="cd">Women visit dargahs and temples for fertility concerns. Infertility is often attributed to spiritual causes.</div></div></div>';
+html+='</div>';
+oP(html)}
+
+function sS(s){
+var html='<h3>'+s.n+'</h3><span class="tag" style="background:var(--amberL);color:var(--amberD)">Semi-urban town</span>';
+html+='<div class="big" style="color:var(--amber)">~'+(s.km2||s.km)+' km <span style="font-size:13px;color:var(--text3)">from Kolkata (approx.)</span></div>';
+html+='<div class="dv"></div>';
+html+='<div class="row"><span class="rl">District</span><span class="rv">'+s.d+'</span></div>';
+html+='<div class="row"><span class="rl">Subdivision</span><span class="rv">'+(s.subdiv||'')+'</span></div>';
+
+html+='<div class="dv"></div>';
+html+='<div class="sec"><h4>Government healthcare</h4><p class="desc">'+(s.govt||'')+'</p></div>';
+
+html+='<div class="sec" style="background:var(--amberL)"><h4 style="color:var(--amber)">Private practitioners</h4><p class="desc">Gynaecologists, general practitioners, or registered medical practitioners run their own small clinics with basic diagnostic facilities such as ultrasound machines and access to local pathology labs. These practitioners screen patients, and when they identify cases of infertility, they ask them to return when ART clinicians from Kolkata are scheduled to visit.</p></div>';
+
+html+='<div class="sec" style="background:var(--purpleL)"><h4 style="color:var(--purple)">ART outreach from Kolkata</h4><p class="desc">Rising competition among ART clinics in Kolkata has pushed them to look for patients beyond the city. These clinics form referral arrangements with local practitioners in semi-urban towns like '+s.n+'.</p><p class="desc">Kolkata doctors visit approximately twice a month to hold screening camps. Patients identified as candidates for fertility treatment are referred to the Kolkata clinic for procedures such as IVF or IUI.</p><p class="desc">Once a patient conceives through ART treatment in Kolkata, she is referred back to the local practitioner for antenatal care and delivery follow-up.</p></div>';
+
+html+='<div class="sec" style="background:var(--redL)"><h4 style="color:var(--red)">What is not available</h4><p class="desc" style="color:var(--red)">There are no IVF, IUI, ICSI, or assisted reproductive technology facilities in '+s.n+'. AMH (Anti-Mullerian Hormone) testing and tubal blockage assessment are also not available. There is no embryologist, no ART laboratory, and no fertility specialist. Patients requiring fertility treatment must travel to Kolkata.</p></div>';
+oP(html)}
+
+function sU(){
+var html='<h3>Private ART clinics (Kolkata)</h3><span class="tag" style="background:var(--purpleL);color:var(--purpleD)">Urban. 150+ clinics</span>';
+html+='<div class="big" style="color:var(--purple)">150+</div><p class="desc">Private clinics concentrated in Kolkata metropolitan area</p>';
+
+html+='<div class="dv"></div><div class="st">Clinic composition:</div>';
+html+=[["Independent solo clinics","~43"],["Large corporate chains","3"],["Mid-size / group practices","~100+"]].map(function(r){return '<div class="row"><span class="rl">'+r[0]+'</span><span class="rv">'+r[1]+'</span></div>'}).join('');
+
+html+='<div class="dv"></div><div class="st">Available healthcare for urban patients:</div>';
+html+='<div class="cr"><div class="ci">'+ico('art')+'</div><div><div class="ct">Reproductive endocrinologists / IVF specialists</div><div class="cd">Board-certified specialists with international training (Spain, England, Israel). Full hormonal profiling, hysterosalpingography, laparoscopy, IVF/ICSI/IUI, embryo cryopreservation. Multiple competing specialists within commuting distance.</div></div></div>';
+html+='<div class="cr"><div class="ci">'+ico('phc')+'</div><div><div class="ct">Obstetrician-gynaecologists (general)</div><div class="cd">Hundreds of practising ObGyns across Kolkata. Initial fertility evaluation, ovulation induction, basic investigations. Referral to ART specialists when indicated. Available in government medical colleges and private hospitals.</div></div></div>';
+html+='<div class="cr"><div class="ci">'+ico('opd')+'</div><div><div class="ct">Diagnostic laboratories and imaging centres</div><div class="cd">Full-service pathology labs offering hormonal panels (FSH, LH, AMH, estradiol, prolactin, thyroid), semen analysis, genetic testing. Transvaginal ultrasound, HSG, MRI. Multiple competing labs with same-day results. Walk-in access.</div></div></div>';
+html+='<div class="cr"><div class="ci">'+ico('homeopathy')+'</div><div><div class="ct">Alternative and complementary medicine</div><div class="cd">Homeopathy, ayurveda, naturopathy practitioners available as supplementary options. Chosen voluntarily alongside biomedical care, not as the only recourse in the absence of qualified doctors.</div></div></div>';
+html+='<div class="cr"><div class="ci">'+ico('phc')+'</div><div><div class="ct">Government medical colleges (3+)</div><div class="cd">SSKM Hospital, NRS Medical College, Calcutta Medical College. All with ObGyn departments offering subsidised fertility evaluation. These provide a public-sector option unavailable anywhere in rural West Bengal.</div></div></div>';
+
+html+='<div class="dv"></div>';
+html+='<div class="sec" style="background:var(--amberL)"><h4 style="color:var(--amber)">Cost of treatment</h4>';
+html+='<div class="row"><span class="rl">Single IVF cycle</span><span class="rv">$1,200 to $3,000</span></div>';
+html+='<div class="row"><span class="rl">Most patients need</span><span class="rv">2 to 3 cycles</span></div>';
+html+='<div class="row"><span class="rl">Total cost</span><span class="rv">$3,600 to $9,000</span></div>';
+html+='<div class="row"><span class="rl">Ayushman Bharat</span><span class="rv" style="color:var(--red)">Does not cover IVF</span></div>';
+html+='<div class="row"><span class="rl">Swasthya Sathi (WB)</span><span class="rv" style="color:var(--red)">Does not cover IVF</span></div>';
+html+='<div class="row"><span class="rl">Private insurance</span><span class="rv" style="color:var(--red)">Mostly excludes infertility</span></div>';
+html+='<div class="row"><span class="rl">Free govt IVF (SSKM)</span><span class="rv">2 days/week. Months-long wait</span></div>';
+html+='<div class="row"><span class="rl">Rural household income</span><span class="rv">~$96 to $120/month</span></div>';
+html+='<p class="desc" style="font-size:10px;color:var(--text3);margin-top:6px">A single IVF cycle = 10 to 22 months of total household income.</p>';
+html+='<p class="desc" style="font-size:9px;color:var(--text3)">Source: GarbhSaathi, "Financing IVF in India" (2026)</p>';
+html+='</div>';
+
+html+='<div class="dv"></div>';
+html+='<div class="sec" style="background:var(--purpleL)"><h4 style="color:var(--purple)">Urban patients</h4>';
+html+='<p class="desc">• Compare 150+ clinics within commuting distance</p>';
+html+='<p class="desc">• Seek second opinions from competing specialists</p>';
+html+='<p class="desc">• Switch providers when outcomes are unsatisfactory</p>';
+html+='<p class="desc">• Travel to Chennai, Hyderabad, or Vellore for specialised treatment</p>';
+html+='</div>';
+
+html+='<div class="sec" style="background:var(--redL)"><h4 style="color:var(--red)">Rural patients</h4>';
+html+='<p class="desc" style="color:var(--red)">• Arrive through one referral chain they did not choose</p>';
+html+='<p class="desc" style="color:var(--red)">• Cannot compare clinics, switch, or seek alternatives</p>';
+html+='<p class="desc" style="color:var(--red)">• Travel 100 to 350 km for each visit</p>';
+html+='<p class="desc" style="color:var(--red)">• No emergency care if complications arise after returning home</p>';
+html+='</div>';
+
+html+='<div class="dv"></div>';
+html+='<div class="st">ART (Regulation) Act, 2021. Requirements:</div>';
+html+=["IVF laboratory","Embryologist","Gynecologist","Informed consent procedures","5-year registration"].map(function(i){return '<div class="row"><span class="rl">'+i+'</span><span class="rv" style="color:var(--teal)">Required</span></div>'}).join('');
+
+html+='<div class="dv"></div>';
+html+='<div class="st" style="color:var(--red)">Not addressed by ART Act:</div>';
+html+=["Emergency department","Inpatient beds","Continuity of care protocols","Rural patient support mechanisms","Regulation of outreach camps","Post-complication responsibility"].map(function(i){return '<div class="row"><span class="rl">'+i+'</span><span class="rv" style="color:var(--red)">Not required</span></div>'}).join('');
+
+html+='<div class="dv"></div>';
+html+='<p class="desc" style="font-size:9px;color:var(--text3)">Sources: ART (Regulation) Act, 2021 (indiacode.nic.in); ART (Regulation) Rules, March 2022 (dhr.gov.in); PRS Legislative Research.</p>';
+oP(html)}
+
+function sB(b){
+
+
+var indiaPanel=(b.n==='Hyderabad'||b.n==='Vellore'||b.n==='Chennai')?'<div class="dv"></div><div class="sec"><h4>National-level ART destination</h4><p class="desc">Urban Kolkata patients who are dissatisfied with local outcomes or seeking more specialised interventions travel to '+b.n+' for treatment. This inter-city mobility illustrates the asymmetry at the core of the reproductive care system: urban patients can reject a Kolkata clinic and travel to '+b.n+'. Rural patients from Murshidabad or the Sundarbans cannot even compare two clinics within their own state.</p></div>':'';
+oP('<h3>'+b.n+'</h3><span class="tag" style="background:var(--tealL);color:#04342C">Border / Transnational</span><div class="dv"></div><div class="row"><span class="rl">Location</span><span class="rv">'+b.d+'</span></div><div class="row"><span class="rl">Function</span><span class="rv">'+b.fn+'</span></div><div class="dv"></div><p class="desc">'+b.note+'</p>'+indiaPanel)}
+
+function sG(g){
+oP('<h3>'+g.n+'</h3><span class="tag" style="background:var(--blueL);color:#042C53">Global. doctor certification</span><div class="dv"></div><p class="desc">'+g.fn+'</p><p class="desc">'+g.note+'</p><div class="dv"></div><div class="sec"><h4>Knowledge extraction</h4><p class="desc">Kolkata fertility doctors travel to '+g.n+' for certifications and training. Knowledge flows from Global North → India. But this expertise does not flow further to rural patients. it stays concentrated in Kolkata\'s 150+ private clinics.</p></div>')}
+
+map.on('click',function(e){if(!e.originalEvent.target.closest('[style*="border-radius:50%"]')&&!e.originalEvent.target.closest('[style*="border-left"]')&&!e.originalEvent.target.closest('[style*="clip-path"]')&&!e.originalEvent.target.closest('.nav-pad'))cP()});
+
+// ===== PAN NAVIGATION D-PAD =====
+var navDiv=document.createElement('div');
+navDiv.className='nav-pad';
+navDiv.style.cssText='position:absolute;bottom:10px;right:45px;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:1px;user-select:none';
+var panAmt=100;
+function mkBtn(label,dx,dy){var b=document.createElement('button');b.textContent=label;b.style.cssText='width:28px;height:28px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.3);backdrop-filter:blur(3px);border-radius:4px;cursor:pointer;font-size:13px;color:var(--text);display:flex;align-items:center;justify-content:center;padding:0;line-height:1';b.onclick=function(){map.panBy([dx,dy],{animate:true,duration:.3})};return b}
+var rowTop=document.createElement('div');rowTop.appendChild(mkBtn('▲',0,-panAmt));
+var rowMid=document.createElement('div');rowMid.style.cssText='display:flex;gap:1px';
+rowMid.appendChild(mkBtn('◀',-panAmt,0));
+var homeBtn=document.createElement('button');homeBtn.textContent='⌂';homeBtn.style.cssText='width:28px;height:28px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.3);backdrop-filter:blur(3px);border-radius:4px;cursor:pointer;font-size:12px;color:var(--text);display:flex;align-items:center;justify-content:center;padding:0;line-height:1';
+homeBtn.title='Reset view';homeBtn.onclick=function(){map.setView([23.5,88.0],7,{animate:true})};
+rowMid.appendChild(homeBtn);
+rowMid.appendChild(mkBtn('▶',panAmt,0));
+var rowBot=document.createElement('div');rowBot.appendChild(mkBtn('▼',0,panAmt));
+navDiv.appendChild(rowTop);navDiv.appendChild(rowMid);navDiv.appendChild(rowBot);
+
+// Quick-jump buttons
+var jumpDiv=document.createElement('div');
+jumpDiv.style.cssText='display:flex;flex-direction:column;gap:2px;margin-top:6px';
+[['WB',23.5,88.0,7],['Global',25,40,3],['Kolkata',22.55,88.36,11],['North',26,88.4,8]].forEach(function(j){
+var jb=document.createElement('button');jb.textContent=j[0];
+jb.style.cssText='padding:2px 6px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.3);backdrop-filter:blur(3px);border-radius:3px;cursor:pointer;font-size:9px;color:var(--text);font-family:var(--sans)';
+jb.onclick=function(){map.setView([j[1],j[2]],j[3],{animate:true})};jumpDiv.appendChild(jb)});
+navDiv.appendChild(jumpDiv);
+document.getElementById('map').appendChild(navDiv);
+
+
+
+// ===== GUIDED INTRO OVERLAY =====
+var introDiv=document.createElement('div');
+introDiv.id='introOverlay';
+introDiv.style.cssText='position:absolute;top:0;left:0;right:0;bottom:0;z-index:2000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(3px)';
+introDiv.innerHTML='<div style="background:#FDFBF7;max-width:560px;border-radius:14px;padding:40px 44px;box-shadow:0 12px 48px rgba(0,0,0,.25);cursor:default" onclick="event.stopPropagation()">'+
+
+'<h2 style="font-family:Playfair Display,Georgia,serif;font-size:30px;font-weight:700;color:#1A1814;margin:0 0 16px;line-height:1.2;letter-spacing:-.02em">Mapping Reproductive Injustice in Rural West Bengal</h2>'+
+'<p style="font-family:Lora,Georgia,serif;font-size:15px;line-height:1.75;color:#2A2720;margin:0 0 20px">This map traces how the absence of reproductive healthcare in rural West Bengal produces a system in which patients are channelled from villages through semi-urban screening camps into Kolkata\'s 150+ private ART clinics.</p>'+
+'<div style="font-family:Lora,Georgia,serif;font-size:14px;color:#2A2720;line-height:1.7;margin-bottom:24px">'+
+'<div style="display:flex;align-items:start;gap:10px;margin-bottom:8px"><span style="display:inline-block;min-width:10px;width:10px;height:10px;background:#922828;transform:rotate(45deg);margin-top:5px"></span><span><strong style="font-family:Playfair Display,serif">Red diamonds</strong>. rural villages with no qualified healthcare</span></div>'+
+'<div style="display:flex;align-items:start;gap:10px;margin-bottom:8px"><span style="display:inline-block;min-width:10px;width:10px;height:10px;background:#A86B15;border-radius:2px;margin-top:5px"></span><span><strong style="font-family:Playfair Display,serif">Amber squares</strong>. semi-urban OPD screening camps</span></div>'+
+'<div style="display:flex;align-items:start;gap:10px;margin-bottom:8px"><span style="min-width:12px;width:12px;height:3px;background:#4A41A8;margin-top:9px"></span><span><strong style="font-family:Playfair Display,serif">Purple crosses</strong>. Kolkata\'s 150+ private ART clinics</span></div>'+
+'<div style="display:flex;align-items:start;gap:10px;margin-bottom:8px"><span style="display:inline-block;min-width:10px;width:10px;height:10px;background:#7B2D8E;border-radius:50%;margin-top:5px"></span><span><strong style="font-family:Playfair Display,serif">Purple dots</strong>. doctors moving outward from Kolkata</span></div>'+
+'<div style="display:flex;align-items:start;gap:10px;margin-bottom:12px"><span style="display:inline-block;min-width:10px;width:10px;height:10px;background:#1A3A8A;border-radius:50%;margin-top:5px"></span><span><strong style="font-family:Playfair Display,serif">Dark blue dots</strong>. patients moving inward toward Kolkata</span></div>'+
+'<p style="font-size:13px;color:#5A5750;margin:0">Click any marker for detailed information. Use the search bar to find locations or issues. Read the About panel on the left for context.</p>'+
+'</div>'+
+'<button onclick="document.getElementById(\'introOverlay\').style.display=\'none\'" style="width:100%;padding:13px;background:#1A1814;color:#FDFBF7;border:none;border-radius:10px;font-family:Source Sans 3,sans-serif;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.02em">Explore the map</button>'+
+'</div>';
+document.getElementById('map').appendChild(introDiv);
+introDiv.addEventListener('click',function(e){if(e.target===introDiv)introDiv.style.display='none'});
+
+// ===== SEARCH BOX =====
+// Build searchable index of all locations
+var searchIdx=[];
+rural.forEach(function(v){searchIdx.push({n:v.n,type:'Rural village',d:v.d,la:v.la,ln:v.ln,zoom:14,tags:v.risk+' '+(v.c.map(function(c){return c.ti+' '+c.de}).join(' ')),fn:function(){sV(v)}})});
+semi.forEach(function(s){searchIdx.push({n:s.n,type:'Semi-urban OPD',d:s.d,la:s.la,ln:s.ln,zoom:14,tags:s.note+' OPD camp screening USG semen analysis',fn:function(){sS(s)}})});
+border.forEach(function(b){searchIdx.push({n:b.n,type:'Border / Transnational',d:b.d,la:b.la,ln:b.ln,zoom:12,tags:b.fn+' '+b.note+' Bangladesh border patients',fn:function(){sB(b)}})});
+global_pts.forEach(function(g){searchIdx.push({n:g.n,type:'Global certification',d:'',la:g.la,ln:g.ln,zoom:5,tags:g.fn+' '+g.note+' doctors training certification',fn:function(){sG(g)}})});
+searchIdx.push({n:'Kolkata ART clinics',type:'Urban (150+)',d:'Kolkata',la:22.55,ln:88.36,zoom:13,tags:'ART IVF ICSI IUI fertility clinic specialist urban',fn:function(){sU()}});
+
+var searchBox=document.createElement('div');
+searchBox.style.cssText='position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:1001;width:260px;font-family:var(--sans)';
+searchBox.innerHTML='<div style="position:relative"><input id="srcInp" type="text" placeholder="Search locations, issues..." style="width:100%;padding:7px 10px 7px 28px;border:1px solid rgba(0,0,0,.12);border-radius:6px;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);font-size:11px;font-family:var(--sans);color:var(--text);outline:none;box-shadow:0 1px 4px rgba(0,0,0,.1)"><svg style="position:absolute;left:8px;top:8px;width:14px;height:14px;opacity:.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div><div id="srcRes" style="display:none;position:absolute;top:34px;left:0;right:0;max-height:280px;overflow-y:auto;background:rgba(255,255,255,.97);border:1px solid rgba(0,0,0,.1);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.12)"></div>';
+document.getElementById('map').appendChild(searchBox);
+
+var srcInp=document.getElementById('srcInp'),srcRes=document.getElementById('srcRes');
+var typeColors={
+'Rural village':'#A32D2D','Semi-urban OPD':'#BA7517','Urban (150+)':'#534AB7',
+'Border / Transnational':'#0F6E56','Global certification':'#185FA5'
+};
+var typeShapes={
+'Rural village':'◇','Semi-urban OPD':'■','Urban (150+)':'✚',
+'Border / Transnational':'▲','Global certification':'★'
+};
+
+srcInp.addEventListener('input',function(){
+var q=this.value.toLowerCase().trim();
+if(q.length<2){srcRes.style.display='none';return}
+var matches=searchIdx.filter(function(item){
+return item.n.toLowerCase().indexOf(q)>-1||item.type.toLowerCase().indexOf(q)>-1||(item.d&&item.d.toLowerCase().indexOf(q)>-1)||item.tags.toLowerCase().indexOf(q)>-1
+}).slice(0,10);
+if(matches.length===0){srcRes.style.display='none';return}
+srcRes.style.display='block';
+srcRes.innerHTML=matches.map(function(m,i){
+var col=typeColors[m.type]||'#666';
+var shp=typeShapes[m.type]||'●';
+return '<div class="src-item" data-i="'+i+'" style="padding:6px 10px;cursor:pointer;border-bottom:0.5px solid rgba(0,0,0,.05);transition:background .1s" onmouseover="this.style.background=\'rgba(0,0,0,.04)\'" onmouseout="this.style.background=\'transparent\'"><div style="display:flex;align-items:center;gap:6px"><span style="color:'+col+';font-size:12px">'+shp+'</span><span style="font-size:11px;font-weight:500;color:var(--text)">'+m.n+'</span></div><div style="font-size:9px;color:var(--text3);margin-top:1px;padding-left:18px">'+m.type+(m.d?'. '+m.d:'')+'</div></div>'
+}).join('');
+// Add click handlers
+srcRes.querySelectorAll('.src-item').forEach(function(el){
+el.addEventListener('click',function(){
+var idx=parseInt(this.getAttribute('data-i'));
+var m=matches[idx];
+map.setView([m.la,m.ln],m.zoom,{animate:true});
+setTimeout(function(){m.fn()},400);
+srcInp.value=m.n;
+srcRes.style.display='none';
+})})});
+
+srcInp.addEventListener('focus',function(){if(this.value.length>=2)srcInp.dispatchEvent(new Event('input'))});
+document.addEventListener('click',function(e){if(!searchBox.contains(e.target))srcRes.style.display='none'});
+</script>
+<style>.tip{font-family:var(--sans);font-size:11px;padding:3px 8px;border-radius:5px;border:none;box-shadow:0 1px 4px rgba(0,0,0,.15)}</style>
+
+<script>
+function toggleAcc(btn){
+// Close all other accordion sections first
+document.querySelectorAll('.acc-body').forEach(function(b){
+if(b!==btn.nextElementSibling){b.style.maxHeight=null;b.style.padding='0 0';var a=b.previousElementSibling.querySelector('.acc-arrow');if(a)a.textContent='+'}
+});
+var body=btn.nextElementSibling;var arrow=btn.querySelector('.acc-arrow');
+if(body.style.maxHeight){body.style.maxHeight=null;body.style.padding='0 0';arrow.textContent='+'}
+else{body.style.maxHeight=body.scrollHeight+60+'px';body.style.padding='14px 0';arrow.textContent='\u2212';
+// Scroll the sidebar so opened section is visible
+setTimeout(function(){btn.scrollIntoView({behavior:'smooth',block:'start'})},100)}}
+function toggleAbout(){var sb=document.getElementById('aboutSB');var btn=document.getElementById('aboutToggle');sb.classList.toggle('collapsed');btn.textContent=sb.classList.contains('collapsed')?'\u25B6':'\u25C0'}
+// Prevent map from stealing scroll when mouse is over sidebar
+document.getElementById('aboutSB').addEventListener('mouseenter',function(){map.scrollWheelZoom.disable()});
+document.getElementById('aboutSB').addEventListener('mouseleave',function(){map.scrollWheelZoom.enable()});
+document.getElementById('aboutSB').addEventListener('wheel',function(e){e.stopPropagation()},{passive:false});
+</script>
+</body>
+</html>
