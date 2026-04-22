@@ -1,0 +1,1456 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voices from the Field — Voices from the Margins</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+    /* ═══════════════════════════════════════
+       VOICES FROM THE MARGINS — Global Styles
+    ═══════════════════════════════════════ */
+
+    :root {
+        --peach-light: #FDDCB5;
+        --peach: #F2A87E;
+        --peach-deep: #E8946A;
+        --coral: #D96B4F;
+        --coral-deep: #C4614A;
+        --dusty-rose: #C97A72;
+        --dusty-rose-deep: #B8655D;
+        --cream: #FFF3EA;
+        --warm-white: #FFFAF6;
+        --dark-earth: #3D2B1F;
+        --dark-earth-soft: #5C4033;
+        --text-primary: #2E1A0E;
+        --text-secondary: #5C3D2E;
+        --text-light: #8B6A58;
+        --ging-light: #F5C8A8;
+        --ging-mid: #E8A07A;
+        --ging-deep: #D4877F;
+        --ging-accent: #C97262;
+    }
+
+    body {
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text-primary);
+        background: var(--warm-white);
+        overflow-x: hidden;
+    }
+
+    /* ═══ NAVBAR ═══ */
+    .navbar-gingham-wrapper {
+        position: fixed; top: 0; left: 0; width: 100%; z-index: 1030;
+        transition: box-shadow 0.35s ease;
+    }
+    .navbar-gingham-wrapper.scrolled { box-shadow: 0 4px 24px rgba(61,43,31,0.15); }
+    .navbar-gingham-top {
+        height: 6px;
+        background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(201,114,98,0.35) 3px, rgba(201,114,98,0.35) 6px),
+            repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(201,114,98,0.35) 3px, rgba(201,114,98,0.35) 6px),
+            linear-gradient(90deg, var(--ging-mid), var(--ging-light));
+    }
+    .navbar.navbar-gingham {
+        background: repeating-linear-gradient(0deg, transparent, transparent 16px, rgba(201,114,98,0.26) 16px, rgba(201,114,98,0.26) 32px),
+            repeating-linear-gradient(90deg, transparent, transparent 16px, rgba(201,114,98,0.26) 16px, rgba(201,114,98,0.26) 32px),
+            linear-gradient(135deg, #F8D4B8, #F0BFA0, #EDAE90);
+        padding: 0.9rem 0; transition: padding 0.35s ease;
+    }
+    .navbar-gingham-wrapper.scrolled .navbar.navbar-gingham { padding: 0.55rem 0; }
+    .navbar-gingham-bottom {
+        height: 5px;
+        background: repeating-linear-gradient(90deg, var(--ging-accent) 0px, var(--ging-accent) 5px, var(--ging-mid) 5px, var(--ging-mid) 10px);
+    }
+    .navbar-gingham .navbar-brand { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--dark-earth); }
+    .navbar-gingham .navbar-brand:hover { color: var(--dark-earth); }
+    .navbar-gingham .navbar-brand span { color: var(--coral-deep); }
+    .navbar-gingham .nav-link {
+        font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+        color: var(--dark-earth) !important; padding: 0.5rem 1.2rem !important; position: relative;
+    }
+    .navbar-gingham .nav-link::after {
+        content: ''; position: absolute; bottom: 2px; left: 1.2rem; right: 1.2rem;
+        height: 2.5px; background: var(--coral-deep); transform: scaleX(0); transition: transform 0.3s ease;
+    }
+    .navbar-gingham .nav-link:hover { color: var(--coral-deep) !important; }
+    .navbar-gingham .nav-link:hover::after, .navbar-gingham .nav-link.active::after { transform: scaleX(1); }
+    .navbar-gingham .nav-link.active { color: var(--coral-deep) !important; }
+    .navbar-gingham .navbar-toggler { border: 1.5px solid var(--dark-earth); }
+    .navbar-gingham .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%233D2B1F' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    /* ═══ BACKGROUNDS ═══ */
+    .bg-cream { background: var(--cream); }
+    .bg-warm-white { background: var(--warm-white); }
+    .bg-dark-earth { background: var(--dark-earth); }
+    .gingham-divider {
+        height: 5px;
+        background: repeating-linear-gradient(90deg, var(--ging-accent) 0px, var(--ging-accent) 5px, var(--ging-mid) 5px, var(--ging-mid) 10px);
+    }
+
+    .section-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: var(--coral); }
+    .section-heading { font-family: 'Playfair Display', serif; font-weight: 600; color: var(--dark-earth); }
+    .section-text { font-family: 'Lora', serif; font-size: 1.1rem; line-height: 1.85; color: var(--text-secondary); }
+
+    /* ═══ FOOTER ═══ */
+    .footer { background: var(--dark-earth); color: rgba(255,255,255,0.5); }
+    .footer-gingham-strip {
+        height: 8px;
+        background: repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(201,114,98,0.3) 4px, rgba(201,114,98,0.3) 8px),
+            repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(201,114,98,0.3) 4px, rgba(201,114,98,0.3) 8px),
+            linear-gradient(90deg, var(--ging-mid), var(--ging-deep));
+    }
+    .footer a { color: rgba(255,255,255,0.4); transition: color 0.3s ease; text-decoration: none; }
+    .footer a:hover { color: var(--peach); }
+    .footer-brand { font-family: 'Playfair Display', serif; color: var(--peach-light); }
+
+    /* ═══ ANIMATIONS ═══ */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ═══════════════════════════════════════
+       HANGING DECORATIVE ILLUSTRATIONS
+    ═══════════════════════════════════════ */
+
+    .hanging-art {
+        position: absolute;
+        pointer-events: none;
+        z-index: 2;
+        opacity: 0;
+        transition: opacity 1s ease 0.3s;
+    }
+    .hanging-art.visible { opacity: 1; }
+    .hanging-art svg { display: block; }
+
+    /* Gentle sway animation */
+    @keyframes gentleSway {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(1.5deg); }
+        75% { transform: rotate(-1.5deg); }
+    }
+    .hanging-art.sway { animation: gentleSway 6s ease-in-out infinite; transform-origin: top center; }
+    .hanging-art.sway-alt { animation: gentleSway 7s ease-in-out infinite 1s; transform-origin: top center; }
+
+    /* ═══ HERO ═══ */
+    .essay-hero { position: relative; min-height: 75vh; overflow: hidden; margin-top: 0%; }
+    .essay-hero-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+    .essay-hero-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to bottom, rgba(61,43,31,0.05) 0%, rgba(61,43,31,0.2) 40%, rgba(61,43,31,0.65) 70%, rgba(61,43,31,0.9) 100%);
+    }
+    .essay-hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; min-height: 75vh; padding-bottom: 4rem; }
+    .essay-hero-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--peach); margin-bottom: 1rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.2s; }
+    .essay-hero-title { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 4.5vw, 3.6rem); font-weight: 700; line-height: 1.15; color: #fff; max-width: 700px; margin-bottom: 1rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.35s; }
+    .essay-hero-divider { width: 60px; height: 3px; background: linear-gradient(90deg, var(--peach), var(--coral)); border-radius: 2px; margin-bottom: 1rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.5s; }
+    .essay-hero-subtitle { font-family: 'Lora', serif; font-size: 1.15rem; line-height: 1.75; color: rgba(255,255,255,0.82); max-width: 580px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.65s; }
+    .essay-hero-meta { margin-top: 1.5rem; font-size: 0.8rem; color: rgba(255,255,255,0.45); font-weight: 500; letter-spacing: 0.05em; opacity: 0; animation: fadeUp 0.8s ease forwards 0.8s; }
+
+    /* ═══ ESSAY BODY ═══ */
+    .essay-body-section { padding: 3rem 0; position: relative; overflow: hidden; }
+    .essay-prose { font-family: 'Lora', serif; font-size: 1.1rem; line-height: 1.9; color: var(--text-secondary); max-width: 720px; margin: 0 auto; }
+    .essay-prose p { margin-bottom: 1rem; }
+    .essay-prose p:last-child { margin-bottom: 0; }
+    .essay-inline-link {
+        color: var(--coral);
+        text-decoration: underline;
+        text-decoration-color: rgba(217,107,79,0.3);
+        text-underline-offset: 2px;
+        transition: text-decoration-color 0.2s;
+        cursor: pointer;
+    }
+    .essay-inline-link:hover {
+        color: var(--coral-deep);
+        text-decoration-color: var(--coral-deep);
+    }
+
+    /* ═══ INLINE IMAGE PAIR (two side by side) ═══ */
+    .essay-img-pair {
+        max-width: 900px; margin: 1.5rem auto;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .essay-img-pair .img-cell {
+        border-radius: 6px; overflow: hidden;
+    }
+    .essay-img-pair .img-cell img {
+        width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .essay-img-pair .img-cell .essay-inline-img-placeholder {
+        width: 100%; aspect-ratio: 4 / 5; border-radius: 0;
+    }
+    .essay-img-pair figcaption {
+        grid-column: 1 / -1;
+        padding: 0.5rem 0 0;
+        font-family: 'Lora', serif;
+        font-size: 0.8rem; font-style: italic;
+        line-height: 1.55; color: var(--text-light);
+    }
+    @media (max-width: 600px) {
+        .essay-img-pair { grid-template-columns: 1fr; }
+        .essay-img-pair .img-cell .essay-inline-img-placeholder { aspect-ratio: 4 / 3; }
+    }
+    .essay-inline-img {
+        max-width: 720px; margin: 1.5rem auto;
+        border-radius: 10px; overflow: hidden;
+        box-shadow: 0 6px 25px rgba(61,43,31,0.1);
+        border: 1px solid rgba(232,160,122,0.15);
+    }
+    .essay-inline-img img {
+        width: 100%; display: block;
+        object-fit: cover; object-position: center;
+    }
+    .essay-inline-img .img-wrapper {
+        overflow: hidden; position: relative;
+    }
+    .essay-inline-img .img-wrapper img {
+        width: 100%; display: block;
+        object-fit: cover; object-position: center;
+        transition: transform 0.3s ease;
+    }
+    .essay-inline-img figcaption {
+        padding: 0.6rem 1rem;
+        font-family: 'Lora', serif;
+        font-size: 0.8rem; font-style: italic;
+        line-height: 1.5; color: var(--text-light);
+        background: rgba(255,243,234,0.5);
+    }
+    .essay-inline-img-placeholder {
+        width: 100%; aspect-ratio: 4 / 3;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 0.5rem;
+        background: linear-gradient(135deg, #f5e6d8, #f0dac8);
+    }
+    .essay-inline-img-placeholder .ph-icon {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: rgba(201,114,98,0.12);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .essay-inline-img-placeholder .ph-icon svg { width: 18px; height: 18px; fill: var(--coral); opacity: 0.5; }
+    .essay-inline-img-placeholder .ph-label {
+        font-size: 0.7rem; color: var(--text-light);
+        letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5;
+    }
+    /* Half-width inline images */
+    .essay-inline-img.half {
+        max-width: 360px;
+    }
+    .essay-inline-img.float-left {
+        float: left; margin: 0.5rem 1.5rem 1rem 0; max-width: 340px;
+    }
+    .essay-inline-img.float-right {
+        float: right; margin: 0.5rem 0 1rem 1.5rem; max-width: 340px;
+    }
+    @media (max-width: 767px) {
+        .essay-inline-img.float-left,
+        .essay-inline-img.float-right {
+            float: none; max-width: 100%; margin: 1rem auto;
+        }
+    }
+    .essay-prose.drop-cap p:first-of-type::first-letter {
+        font-family: 'Playfair Display', serif; font-size: 4.2rem; font-weight: 700;
+        float: left; line-height: 0.8; margin: 0.08em 0.12em 0 0; color: var(--coral);
+    }
+
+    /* ═══ PULL QUOTES ═══ */
+    .essay-pullquote { padding: 1.5rem 0; position: relative; overflow: hidden; }
+    .essay-pullquote-inner { max-width: 680px; margin: 0 auto; text-align: center; position: relative; }
+    .essay-pullquote-mark { font-family: 'Playfair Display', serif; font-size: 4rem; line-height: 1; color: rgba(217,107,79,0.15); margin-bottom: -1.8rem; }
+    .essay-pullquote blockquote { font-family: 'Playfair Display', serif; font-size: 1.45rem; font-style: italic; font-weight: 400; line-height: 1.7; color: var(--dark-earth); margin: 0 0 1rem; border: none; padding: 0; }
+    .essay-pullquote-divider { width: 40px; height: 3px; background: linear-gradient(90deg, var(--peach-deep), var(--coral)); border-radius: 2px; margin: 1rem auto; }
+    .essay-pullquote cite { font-family: 'DM Sans', sans-serif; font-style: normal; font-size: 0.85rem; font-weight: 600; color: var(--coral); letter-spacing: 0.05em; }
+
+    /* ═══ IMAGE CAROUSEL ═══ */
+    .essay-carousel-section { padding: 1.5rem 0; position: relative; overflow: hidden; }
+    .essay-carousel { max-width: 860px; margin: 0 auto; position: relative; }
+    .essay-carousel-viewport { position: relative; overflow: hidden; border-radius: 14px; box-shadow: 0 12px 50px rgba(61,43,31,0.12); background: var(--dark-earth); }
+    .essay-carousel-track { display: flex; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    .essay-carousel-slide { min-width: 100%; position: relative; }
+    .essay-carousel-slide img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: center; display: block; cursor: pointer; transition: transform 0.3s ease; }
+    .essay-carousel-slide .img-wrapper {
+        width: 100%; aspect-ratio: 16 / 10; overflow: hidden; position: relative;
+    }
+    .essay-carousel-slide .img-wrapper img {
+        width: 100%; height: 100%; object-fit: cover; object-position: center;
+        display: block; cursor: pointer; transition: transform 0.3s ease;
+    }
+    .essay-carousel-slide .img-controls {
+        position: absolute; bottom: 10px; right: 10px; z-index: 5;
+        display: flex; gap: 4px;
+    }
+    .essay-carousel-slide .img-ctrl-btn {
+        width: 30px; height: 30px; border-radius: 6px; border: none;
+        background: rgba(0,0,0,0.5); color: #fff; font-size: 14px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s;
+    }
+    .essay-carousel-slide .img-ctrl-btn:hover { background: rgba(0,0,0,0.7); }
+    .essay-carousel-slide .img-fit-toggle {
+        width: auto; padding: 0 8px;
+        font-size: 10px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.05em;
+    }
+    .essay-carousel-placeholder {
+        width: 100%; aspect-ratio: 16 / 10; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 0.6rem;
+        background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06));
+    }
+    .essay-carousel-placeholder .ph-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(242,168,126,0.12); display: flex; align-items: center; justify-content: center; }
+    .essay-carousel-placeholder .ph-icon svg { width: 20px; height: 20px; fill: var(--peach); }
+    .essay-carousel-placeholder .ph-label { font-size: 0.75rem; color: rgba(255,255,255,0.25); letter-spacing: 0.12em; text-transform: uppercase; }
+    .essay-carousel-btn {
+        position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+        width: 44px; height: 44px; border-radius: 50%; border: none;
+        background: rgba(255,255,255,0.92); color: var(--dark-earth); font-size: 1.2rem;
+        display: flex; align-items: center; justify-content: center; cursor: pointer;
+        box-shadow: 0 4px 16px rgba(61,43,31,0.18); transition: all 0.3s ease; opacity: 0.85;
+    }
+    .essay-carousel-btn:hover { background: #fff; opacity: 1; box-shadow: 0 6px 24px rgba(61,43,31,0.25); transform: translateY(-50%) scale(1.06); }
+    .essay-carousel-btn.prev { left: -22px; }
+    .essay-carousel-btn.next { right: -22px; }
+    @media (max-width: 991px) {
+        .essay-carousel-btn.prev { left: 12px; }
+        .essay-carousel-btn.next { right: 12px; }
+    }
+    .essay-carousel-dots { display: flex; gap: 7px; justify-content: center; margin-top: 1.2rem; }
+    .essay-carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(61,43,31,0.15); border: none; cursor: pointer; transition: all 0.3s ease; padding: 0; }
+    .essay-carousel-dot.active { background: var(--coral); width: 24px; border-radius: 4px; }
+    .essay-carousel-caption { text-align: center; margin-top: 1rem; max-width: 680px; margin-left: auto; margin-right: auto; }
+    .essay-carousel-caption p { font-family: 'Lora', serif; font-size: 0.9rem; font-style: italic; line-height: 1.6; color: var(--text-light); margin: 0; }
+
+    /* ═══ SECTION HEADINGS ═══ */
+    .essay-section-heading { max-width: 720px; margin: 0 auto 2rem; }
+    .essay-section-heading h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 600; color: var(--dark-earth); line-height: 1.35; margin: 0; }
+    .essay-section-heading .heading-rule { width: 50px; height: 3px; background: linear-gradient(90deg, var(--peach), var(--coral)); border-radius: 2px; margin-top: 0.8rem; }
+
+    /* ═══ ARSENIC MAP ═══ */
+    .arsenic-map-section { padding: 4rem 0; position: relative; overflow: hidden; }
+    .arsenic-map-wrapper {
+        max-width: 860px; margin: 0 auto;
+        border-radius: 14px; overflow: hidden;
+        box-shadow: 0 12px 50px rgba(61,43,31,0.12);
+        border: 1px solid rgba(232,160,122,0.2);
+    }
+    #arsenicMap { width: 100%; height: 520px; }
+    .arsenic-map-legend {
+        max-width: 860px; margin: 1.5rem auto 0;
+        display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;
+    }
+    .arsenic-legend-item { display: flex; align-items: center; gap: 0.5rem; font-family: 'Lora', serif; font-size: 0.85rem; color: var(--text-secondary); }
+    .arsenic-legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .arsenic-legend-dot.severe { background: #C62828; }
+    .arsenic-legend-dot.high { background: #E53935; }
+    .arsenic-legend-dot.moderate { background: #FF8A65; }
+    .arsenic-legend-dot.low { background: #FFCC80; }
+    .arsenic-map-caption { text-align: center; margin-top: 1rem; max-width: 680px; margin-left: auto; margin-right: auto; }
+    .arsenic-map-caption p { font-family: 'Lora', serif; font-size: 0.9rem; font-style: italic; line-height: 1.6; color: var(--text-light); margin: 0; }
+
+    /* ═══ ARSENIC MAP + RISK TOOL (side by side) ═══ */
+    .arsenic-split {
+        border-radius: 14px; overflow: hidden;
+        box-shadow: 0 8px 35px rgba(61,43,31,0.1);
+        border: 1px solid rgba(232,160,122,0.2);
+        background: var(--warm-white);
+    }
+    .arsenic-map-wrapper { overflow: hidden; }
+    #arsenicMap { width: 100%; height: 380px; }
+
+    .arsenic-tool-side {
+        background: transparent;
+    }
+    .arsenic-tool-inner {
+        padding: 1.5rem;
+        height: 100%;
+        display: flex; flex-direction: column;
+    }
+    .risk-tool-select {
+        width: 100%; padding: 0.65rem 0.8rem;
+        border: 1.5px solid rgba(61,43,31,0.15);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--dark-earth);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.82rem; appearance: none; cursor: pointer;
+        transition: border-color 0.2s;
+        margin-bottom: 1rem;
+    }
+    .risk-tool-select:focus { outline: none; border-color: var(--coral); }
+    .risk-tool-select option, .risk-tool-select optgroup { background: #fff; color: var(--dark-earth); }
+
+    .risk-default-state { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+    .risk-default-row {
+        display: flex; align-items: center; gap: 8px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.78rem; color: var(--text-light);
+    }
+    .risk-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Result card inside tool */
+    #riskResult {
+        flex: 1;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 0.8rem;
+        overflow-y: auto;
+    }
+    #riskResult.severe { background: rgba(211,47,47,0.08); border: 1px solid rgba(211,47,47,0.2); }
+    #riskResult.mild { background: rgba(251,192,45,0.08); border: 1px solid rgba(251,192,45,0.2); }
+    #riskResult.safe { background: rgba(56,142,60,0.08); border: 1px solid rgba(56,142,60,0.2); }
+
+    .risk-result-badge {
+        display: inline-block; padding: 2px 8px; border-radius: 12px;
+        font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
+        text-transform: uppercase; margin-bottom: 4px;
+    }
+    .risk-result-badge.severe { background: #D32F2F; color: #fff; }
+    .risk-result-badge.mild { background: #FBC02D; color: #3D2B1F; }
+    .risk-result-badge.safe { background: #388E3C; color: #fff; }
+    .risk-result-district {
+        font-family: 'Playfair Display', serif;
+        font-size: 0.95rem; font-weight: 600; color: var(--dark-earth);
+        margin-bottom: 4px;
+    }
+    .risk-result-detail {
+        font-family: 'Lora', serif;
+        font-size: 0.72rem; line-height: 1.55;
+        color: var(--text-secondary);
+    }
+    .risk-result-detail strong { color: var(--dark-earth); }
+    .risk-result-cite {
+        font-size: 0.6rem; color: var(--text-light);
+        margin-top: 6px; padding-top: 5px;
+        border-top: 1px solid rgba(61,43,31,0.08);
+        font-style: italic;
+    }
+    .risk-result-cite a { color: var(--coral); text-decoration: underline; }
+
+    .arsenic-tool-cite {
+        margin-top: auto;
+        padding-top: 0.8rem;
+        border-top: 1px solid rgba(61,43,31,0.08);
+        font-family: 'Lora', serif;
+        font-size: 0.6rem; line-height: 1.5;
+        color: var(--text-light);
+    }
+    .arsenic-tool-cite a { color: var(--coral); text-decoration: underline; }
+
+    @media (max-width: 991px) {
+        .arsenic-tool-side { border-top: 1px solid rgba(61,43,31,0.08); }
+        .arsenic-map-wrapper { border-radius: 14px 14px 0 0 !important; }
+        #arsenicMap { height: 300px; }
+    }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 767px) {
+        .essay-hero { min-height: 60vh; }
+        .essay-hero-content { min-height: 60vh; padding-bottom: 2.5rem; }
+        .essay-body-section { padding: 2rem 0; }
+        .essay-pullquote { padding: 1rem 0; }
+        .essay-pullquote blockquote { font-size: 1.2rem; }
+        .essay-carousel-section { padding: 1rem 0; }
+        .hanging-art { display: none; }
+        #arsenicMap { height: 380px; }
+    }
+    </style>
+</head>
+<body>
+
+    <!-- ═══ NAVBAR ═══ -->
+    <div class="navbar-gingham-wrapper" id="navWrapper">
+        <div class="navbar-gingham-top"></div>
+        <nav class="navbar navbar-expand-lg navbar-gingham" id="mainNav">
+            <div class="container">
+                <a class="navbar-brand" href="#">Voices <span>from the Margins</span></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="navContent">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="#" data-page="home">Home</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="#" data-page="voices">Voices from the Field</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" data-page="map">Map</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" data-page="contributions">Contribute</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="navbar-gingham-bottom"></div>
+    </div>
+
+    <!-- ═══ HERO ═══ -->
+    <div class="essay-hero">
+        <img class="essay-hero-img" src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1400&q=80" alt="West Bengal landscape">
+        <div class="essay-hero-overlay"></div>
+        <div class="container essay-hero-content">
+            <div class="col-lg-8">
+                <h1 class="essay-hero-title">Navigating Reproductive Health at the Margins</h1>
+                <div class="essay-hero-divider"></div>
+                <p class="essay-hero-subtitle">An ethnographic essay exploring reproductive precarity, infrastructural neglect, and women's endurance on the margins of West Bengal.</p>
+                <p class="essay-hero-meta">By Gungun Islam &nbsp;·&nbsp; 28th April, 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SECTION 1: Meeting Saira ═══ -->
+    <div class="essay-body-section bg-warm-white">
+        <div class="hanging-art sway" style="top:0; left:3%; width:40px;">
+            <svg viewBox="0 0 40 200" xmlns="http://www.w3.org/2000/svg">
+                <line x1="20" y1="0" x2="20" y2="130" stroke="#E8A07A" stroke-width="1" opacity="0.5"/>
+                <circle cx="20" cy="135" r="4" fill="none" stroke="#D96B4F" stroke-width="1" opacity="0.4"/>
+                <circle cx="20" cy="150" r="6" fill="none" stroke="#C97A72" stroke-width="1" opacity="0.35"/>
+                <line x1="20" y1="156" x2="20" y2="175" stroke="#E8A07A" stroke-width="1" opacity="0.4"/>
+                <path d="M14 175 L20 192 L26 175" fill="none" stroke="#D96B4F" stroke-width="1" opacity="0.35"/>
+            </svg>
+        </div>
+        <div class="container reveal">
+            <div class="essay-prose drop-cap">
+                <p>I first met Saira in the waiting room of a private fertility clinic in Kolkata, on a sweltering afternoon in May 2024. I was there for my preliminary summer fieldwork. The room was crowded and airless, thick with heat and the low hum of people waiting. We stood side by side near a small water tap, waiting for our turn. As we spoke about the heat, it became clear that for Saira, the exhaustion had not begun in the clinic. She had been travelling since early morning from her village in North 24 Parganas. There are no assisted reproductive technology clinics in rural North 24 Parganas; most people seeking fertility treatment travel to Kolkata, crossing long distances to reach the nearest provider (to understand the distances rural individuals must travel to access care, see the interactive map on the following page). Reaching the clinic had taken her nearly three hours, changing buses and trains and standing the entire way. By the time she arrived, her clothes were damp with sweat, her body already worn down.</p>
+                <figure class="essay-img-pair">
+                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
+                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
+                    <figcaption>[Left: caption. Right: caption.]</figcaption>
+                </figure>
+                <p>Saira was thirty-four years old, married at seventeen, and in all the years since had never conceived. When I first met her, she was in the middle of her first cycle of IVF, a process that requires repeated visits for injections, scans, and consultations. Each one demanded that she undertake the same long journey again. For the past two months, she had been making these trips alone, moving back and forth between a village where treatment was unavailable and a city where it could be accessed. The treatment had already begun to take a visible toll on her body, as she described how the injections caused her whole body to swell, leaving her veins feeling hard and heavy, while the pain in her lower back, on some days, made it difficult for her even to stand. Travelling in this condition puts immense pressure on her body. But the distance she travelled to access care was only one part of what she endured. At the clinic, the doctors traced the source of her condition back to the place she had come from. Years of bathing in pond water had led to untreated pelvic inflammatory disease. Over time, this had scarred and blocked both of her fallopian tubes. By the time it was diagnosed, the damage was irreversible, leaving IVF as the only option.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CAROUSEL ═══ -->
+    <div class="essay-carousel-section bg-warm-white">
+        <div class="container reveal">
+            <div class="essay-carousel" data-carousel>
+                <div class="essay-carousel-viewport">
+                    <button class="essay-carousel-btn prev" aria-label="Previous">‹</button>
+                    <button class="essay-carousel-btn next" aria-label="Next">›</button>
+                    <div class="essay-carousel-track">
+                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Image 1</span></div></div>
+                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Image 2</span></div></div>
+                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Image 3</span></div></div>
+                    </div>
+                </div>
+                <div class="essay-carousel-dots">
+                    <button class="essay-carousel-dot active" data-slide="0"></button>
+                    <button class="essay-carousel-dot" data-slide="1"></button>
+                    <button class="essay-carousel-dot" data-slide="2"></button>
+                </div>
+                <div class="essay-carousel-caption"><p>[Replace with your fieldwork images]</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SECTION 2: Structural failure and water ═══ -->
+    <div class="essay-body-section bg-cream">
+        <div class="hanging-art sway" style="top:0; right:4%; width:35px;">
+            <svg viewBox="0 0 35 180" xmlns="http://www.w3.org/2000/svg">
+                <line x1="17" y1="0" x2="17" y2="90" stroke="#C97262" stroke-width="1" opacity="0.4"/>
+                <path d="M10 90 Q17 105 24 90" fill="none" stroke="#E8946A" stroke-width="1" opacity="0.35"/>
+                <line x1="17" y1="100" x2="17" y2="140" stroke="#C97262" stroke-width="1" opacity="0.35"/>
+                <circle cx="17" cy="148" r="7" fill="none" stroke="#D96B4F" stroke-width="1" opacity="0.3"/>
+                <line x1="17" y1="155" x2="17" y2="170" stroke="#E8A07A" stroke-width="1" opacity="0.3"/>
+                <circle cx="17" cy="175" r="3" fill="#F2A87E" opacity="0.18"/>
+            </svg>
+        </div>
+        <div class="container reveal">
+            <div class="essay-prose">
+                <p>But bathing in a pond was never a choice. Saira's village sits in North 24 Parganas, one of the worst arsenic-affected districts in West Bengal, where groundwater itself is unsafe, contaminated above WHO limits (Chakraborti et al. 2009). In trying to avoid this contaminated groundwater, the community is pushed toward surface water, relying on the village pond. However, what appears as a choice of shift between sources is, in practice, a movement between two forms of harm, both shaped by the state failure to provide safe water infrastructure.</p>
+                <p>Arsenic contamination across the Ganga-Brahmaputra-Meghna floodplains has been known for decades, leaching naturally from alluvial sediments into shallow aquifers. First identified in the 1970s and recognized as a major public health crisis by the late 1990s (Chakraborti et al. 2010), it has been met with a state response marked by delay and underinvestment. Deep tube wells that access safer aquifers remain too expensive for most rural households and have never been installed at the scale required (Sengupta and Mandal 2010). National and State Programs such as Jal Jeevan Mission and Jal Swapno have promised piped water access to all arsenic affected regions but implementation has repeatedly bypassed rural settlements like Saira's.</p>
+                <figure class="essay-img-pair">
+                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
+                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
+                    <figcaption>[Left: caption. Right: caption.]</figcaption>
+                </figure>
+                <p>In practice, this leaves villagers with no safe alternative. In Saira's village, the entire community depends on a single government-installed deep tube well, far too few for its population. Wealthier households install private wells at significant cost, but for families like Saira's, this is not an option. Women therefore walk long distances to collect drinking water from the limited safe sources available, while for everything else bathing, washing, cleaning they rely on the village pond. These ponds are shared with livestock, used for jute retting, and receive runoff, including untreated brick-kiln effluent. Over time, this produces continuous exposure to contaminated water through everyday bodily practices.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         ARSENIC MAP + RISK TOOL (side by side)
+    ═══════════════════════════════════════ -->
+
+    <div class="gingham-divider"></div>
+
+    <div class="bg-warm-white" id="arsenicMapSection" style="padding:2.5rem 0;">
+        <div class="container reveal">
+            <div class="text-center mb-3">
+                <h3 style="font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:600; color:var(--dark-earth); margin-bottom:0.6rem;">Groundwater Arsenic Across West Bengal's Districts</h3>
+                <p style="font-family:'Lora',serif; font-size:0.9rem; line-height:1.7; color:var(--text-secondary); max-width:680px; margin:0 auto;">Between 1988 and 2008, researchers at the School of Environmental Studies, Jadavpur University, analyzed 140,150 hand tube well water samples across all 19 districts of West Bengal. Their findings revealed that 48.1% of tube wells contained arsenic above the WHO guideline of 10 µg/L and 23.8% exceeded 50 µg/L. Nine districts were classified as highly affected, five as mildly affected, and five as unaffected (Chakraborti et al., 2009).</p>
+            </div>
+
+            <div class="row g-0 arsenic-split">
+                <!-- LEFT: Map -->
+                <div class="col-lg-7">
+                    <div class="arsenic-map-wrapper" style="border-radius:14px 0 0 14px;">
+                        <div id="arsenicMap"></div>
+                    </div>
+                </div>
+                <!-- RIGHT: Risk tool -->
+                <div class="col-lg-5 arsenic-tool-side">
+                    <div class="arsenic-tool-inner">
+                        <p class="section-label" style="margin-bottom:0.5rem;">Check Your District</p>
+                        <p style="font-family:'Lora',serif; font-size:0.8rem; line-height:1.55; color:var(--text-light); margin-bottom:1rem;">Groundwater arsenic contamination across <strong style="color:var(--text-secondary);">West Bengal, India</strong>, based on 140,150 tubewell samples across all 19 districts (Chakraborti et al., 2009).</p>
+
+                        <select id="districtSelect" class="risk-tool-select">
+                            <option value="">— Select district —</option>
+                            <optgroup label="Highly Affected (>300 µg/L)">
+                                <option value="malda">Malda</option>
+                                <option value="murshidabad">Murshidabad</option>
+                                <option value="nadia">Nadia</option>
+                                <option value="north24">North 24 Parganas</option>
+                                <option value="south24">South 24 Parganas</option>
+                                <option value="bardhaman">Bardhaman (Purba)</option>
+                                <option value="howrah">Howrah</option>
+                                <option value="hooghly">Hooghly</option>
+                                <option value="kolkata">Kolkata</option>
+                            </optgroup>
+                            <optgroup label="Mildly Affected (10–50 µg/L)">
+                                <option value="coochbehar">Koch Bihar</option>
+                                <option value="jalpaiguri">Jalpaiguri</option>
+                                <option value="darjeeling">Darjeeling</option>
+                                <option value="northdinajpur">North Dinajpur</option>
+                                <option value="southdinajpur">South Dinajpur</option>
+                            </optgroup>
+                            <optgroup label="Unaffected (<10 µg/L)">
+                                <option value="bankura">Bankura</option>
+                                <option value="birbhum">Birbhum</option>
+                                <option value="purulia">Purulia</option>
+                                <option value="medinipureast">Medinipur East</option>
+                                <option value="medinipurwest">Medinipur West</option>
+                            </optgroup>
+                        </select>
+
+                        <!-- Result -->
+                        <div id="riskResult" style="display:none;"></div>
+
+                        <!-- Default state -->
+                        <div id="riskDefault" class="risk-default-state">
+                            <div class="risk-default-row"><span class="risk-dot" style="background:#D32F2F;"></span> 9 highly affected districts</div>
+                            <div class="risk-default-row"><span class="risk-dot" style="background:#FBC02D;"></span> 5 mildly affected districts</div>
+                            <div class="risk-default-row"><span class="risk-dot" style="background:#388E3C;"></span> 5 unaffected districts</div>
+                        </div>
+
+                        <div class="arsenic-tool-cite">
+                            Sources: <a href="https://pubmed.ncbi.nlm.nih.gov/19382148/" target="_blank">Chakraborti 2009</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/12635818/" target="_blank">Rahman 2003</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/16440510/" target="_blank">Rahman 2005</a> · <a href="https://www.adb.org/sites/default/files/linked-documents/49107-006-sd-01.pdf" target="_blank">ADB 2018</a>
+                            <br>WHO guideline: 10 µg/L · BIS limit: 10 µg/L
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="gingham-divider"></div>
+
+    <!-- ═══ SECTION 3: What Water Does to the Womb ═══ -->
+    <div class="essay-body-section bg-warm-white">
+        <div class="container reveal">
+            <div class="essay-section-heading">
+                <h3>What Water Does to the Womb</h3>
+                <div class="heading-rule"></div>
+            </div>
+            <div class="essay-prose">
+                <p>What this daily contact with contaminated water means for the reproductive body is only now beginning to be understood. Women in villages like Saira's are exposed to two distinct threats from two different water sources. The groundwater they drink carries arsenic. The pond water they bathe in, wash with, and use for intimate hygiene carries faecal bacteria, agricultural waste, and industrial effluent. Both damage fertility, but through different biological pathways.</p>
+                <p>Research has shown that chronic arsenic exposure through groundwater disrupts reproductive hormones and damages ovarian follicles. It has been linked to miscarriage, stillbirth, and reduced fertility (Milton et al. 2017, Quansah et al. 2015). A population-level study across 599 Indian districts found that higher groundwater arsenic was significantly associated with increased rates of stillbirth, recurrent pregnancy loss, and infertility (Pinchoff et al. 2022). Several case-control studies have suggested that arsenic plays a role in impairing fertility through oxidative stress and decreased sperm quality (Shen et al. 2013, Susko et al. 2017, Wang et al. 2016). Despite this growing evidence, the precise mechanisms remain poorly understood and largely absent from policy and public health research.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CAROUSEL: First slider (2 images) ═══ -->
+    <div class="essay-carousel-section bg-warm-white">
+        <div class="container reveal">
+            <div class="essay-carousel" data-carousel>
+                <div class="essay-carousel-viewport">
+                    <button class="essay-carousel-btn prev" aria-label="Previous">‹</button>
+                    <button class="essay-carousel-btn next" aria-label="Next">›</button>
+                    <div class="essay-carousel-track">
+                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Image 1</span></div></div>
+                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Image 2</span></div></div>
+                    </div>
+                </div>
+                <div class="essay-carousel-dots">
+                    <button class="essay-carousel-dot active" data-slide="0"></button>
+                    <button class="essay-carousel-dot" data-slide="1"></button>
+                </div>
+                <div class="essay-carousel-caption"><p>[Replace with images]</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SECTION 3 continued: Surface water pathway ═══ -->
+    <div class="essay-body-section bg-warm-white">
+        <div class="container reveal">
+            <div class="essay-prose">
+                <p>What has received even less attention is how contaminated surface water damages women's fertility. Recent research has begun to trace a biological pathway from contaminated water to infertility that runs through the reproductive body. Czapar et al. (2024), in a study of 436 adolescent girls in western Kenya, found that girls who used pond water for washing were significantly more likely to lose the protective bacteria in their vaginal tract, leaving them vulnerable to infection, compared to those with access to piped water. In another study of women in the United States and Kenya, Sabo et al. (2019) found that vaginal washing with contaminated water, a daily necessity for women without running water, destroys these protective bacteria and allows harmful organisms to take hold. The scale of this problem is significant: in Odisha, India, Torondel et al. (2018) documented that 62.4% of women with poor water and sanitation access had at least one laboratory-confirmed reproductive tract infection.</p>
+                <p>Once established, these infections do not remain in the lower body. Bacteria ascend silently through the cervix into the uterus and fallopian tubes, producing pelvic inflammatory disease, often without symptoms severe enough to prompt treatment. Crucially, Haggerty et al. (2016) found that women with PID caused by these bacteria had 8.5 times higher risk of persistent infection in the uterus and nearly four times the risk of subsequent infertility, even when no sexually transmitted infection was present. This matters because approximately half of all PID cases test negative for gonorrhoea and chlamydia (Mitchell and Prabhu 2021). The organisms responsible, E. coli, Bacteroides, Streptococcus, are not sexually transmitted. They are the organisms found in faecally contaminated surface water (Pearce et al. 2025).</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ VIDEO: Fieldwork footage ═══ -->
+    <div class="essay-body-section bg-warm-white" style="padding-top:0;">
+        <div class="container reveal">
+            <div style="max-width:860px; margin:0 auto; border-radius:14px; overflow:hidden; box-shadow:0 8px 35px rgba(61,43,31,0.1); border:1px solid rgba(232,160,122,0.15); position:relative;">
+                <video controls playsinline preload="metadata" style="width:100%; display:block; background:#3D2B1F;">
+                    <source src="IMG_7212.mov" type="video/quicktime">
+                    <source src="IMG_7212.mov" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div style="position:absolute; bottom:0; left:0; right:0; height:80px; background:linear-gradient(to top, rgba(61,43,31,0.85) 0%, rgba(61,43,31,0.4) 50%, transparent 100%); pointer-events:none; z-index:1;"></div>
+            </div>
+            <div style="max-width:860px; margin:0.6rem auto 0; text-align:center;">
+                <p style="font-family:'Lora',serif; font-size:0.8rem; font-style:italic; color:var(--text-light); margin:0;">Infographic by Gungun Islam, developed in consultation with fertility specialists and based on clinical findings from Haggerty et al. (2016) and Mitchell and Prabhu (2021). Created with AI-assisted design tools.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SECTION 3 continued: Gendered labour + Back to Saira ═══ -->
+    <div class="essay-body-section bg-cream">
+        <div class="container reveal">
+            <div class="essay-prose">
+                <p>Many women in India fall victim to this problem, particularly in arsenic-contaminated regions where the government has failed to provide piped water and the few deep tube wells installed are far too few for the communities they serve. Private wells do exist, but they cost around one lakh rupees, about a thousand dollars, which is simply out of reach for most families. Saira's husband is the sole earner, bringing in about 10,000 rupees a month, roughly 100 dollars. So for them, accessing safe water is practically impossible. Within this context, collecting drinking water becomes a deeply gendered responsibility. It is women who travel long distances each day just to bring back drinking water, while relying on the village pond for bathing and domestic use. These ponds hold everything the village puts into them. Jute stalks are submerged for weeks, their decomposition feeding bacterial growth. Livestock wade through the same water, adding faecal matter. Brick kilns discharge untreated effluent carrying heavy metals and chemical waste. The water is neither treated nor monitored. Women use it daily to wash their bodies, clean their genitals, and manage menstrual hygiene, exposing their reproductive tracts directly to these contaminants.</p>
+                <p>For Saira, this daily exposure did exactly what the studies warn of. Contaminated pond water introduced enteric bacteria into her vaginal tract, disrupting the protective microbiome. Over time, those bacteria ascended silently through her cervix into her uterus and fallopian tubes, producing pelvic inflammatory disease. She had experienced pelvic pain for years but had grown accustomed to it, never recognising it as a symptom of an infection that was progressively destroying her fallopian tubes. By the time anyone looked closely enough to find the cause, there was nothing left to save. Her only option now was IVF.</p>
+                <figure class="essay-img-pair">
+                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
+                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
+                    <figcaption>[Left: caption. Right: caption.]</figcaption>
+                </figure>
+                <p>The doctors instructed her to stop using the village pond and to avoid heavy physical exertion during treatment. These instructions assumed an infrastructure that does not exist. Saira now purchases drinking water at twenty rupees per container, an additional daily expense on a household already borrowing to fund IVF. For bathing, she walks to a more distant and less frequented pond, the only alternative available. Most women in the village avoid making this trip because they must walk back drenched through the village with no place to change, visible to neighbours in wet clothes, a source of shame in a community where women's bodily exposure is policed. The same absence of infrastructure that damaged her body now constrains her capacity to comply with the medical requirements of her own care.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="gingham-divider"></div>
+
+    <!-- ═══ SECTION 4: The Politics of the Womb ═══ -->
+    <div class="essay-body-section bg-warm-white">
+        <div class="container reveal">
+            <div class="essay-section-heading">
+                <h3>The Politics of the Womb</h3>
+                <div class="heading-rule"></div>
+            </div>
+            <div class="essay-prose">
+                <p>The structural violence that produces infertility also denies access to its treatment. Saira's village lacks any health facility, trained practitioner, or diagnostic capacity. Infertility is mostly absent from public provision, so women must navigate care on their own. What this means in practice is a three-tier system. At the village level, care is provided by village doctors, unqualified practitioners without training or equipment, charging less than a dollar. At the second level, roughly twenty kilometres away, registered practitioners operate private clinics where they can consult and prescribe, but lack the diagnostic capacity to investigate more complex conditions. At the third level, specialised fertility care exists only in private clinics in urban Kolkata, three hours away, at costs that push families into debt. Each step increases distance, cost, and inaccessibility.</p>
+                <p>Saira moved through all three tiers over the course of several years. From early in her marriage she experienced chronic pelvic pain, a tearing, needle-like sensation that she lived with constantly. When she reported it, it was dismissed as a normal part of being a woman. Within a patriarchal household, her suffering had no space. Over time, she became used to it and stopped mentioning it. This reflects a broader pattern. In South Asian societies women's pain is often minimised, attributed to emotional causes, and left untreated.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Body map image ═══ -->
+    <div style="max-width:400px; margin:0 auto; padding:0 1rem;">
+        <figure class="essay-inline-img" style="margin:0;">
+            <div class="essay-inline-img-placeholder" style="aspect-ratio:3/4;">
+                <div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div>
+                <span class="ph-label">Body Map</span>
+            </div>
+            <figcaption>[Body map image]</figcaption>
+        </figure>
+    </div>
+
+    <!-- ═══ SECTION 4 continued: Three tiers of care ═══ -->
+    <div class="essay-body-section bg-warm-white">
+        <div class="container reveal">
+            <div class="essay-prose">
+                <p>It was only when she could not conceive that anyone took notice and she was sent to the first tier of care, the village doctor, the most accessible option, where she received basic treatment for over a year without any result. She then moved to the second tier, a rural practitioner an hour away, who referred her to a private diagnostic centre in Basirhat for an ultrasound. It identified polycystic ovaries. The doctor began hormonal treatment on this basis alone. Despite Saira's long history of pelvic pain, no one investigated it further. The same medication was prescribed for two years without reassessment or referral, costing 1,500 rupees a month, roughly fifteen dollars. Her husband was never asked to undergo even basic testing. Eventually the cost became unsustainable and Saira was forced to stop.</p>
+                <p>For three years after that, she received no treatment at all. Then a private ART clinic from Kolkata held an outreach camp in her area. These camps have become common as urban fertility clinics compete for patients from communities with no access to specialist services. For many women, they are the first point of contact with advanced reproductive care. At the camp, a doctor reviewed Saira's history and, for the first time, asked that her husband also be tested. She was referred to the Kolkata clinic. There, she underwent hysterosalpingography, a procedure that had never been available to her before. It confirmed what years of pelvic pain had been signalling all along: both of her fallopian tubes were blocked from long-term infection. An ultrasound also confirmed PCOS, the same condition that had been treated for two years at the second tier. That treatment may have supported ovulation, but conception was impossible because her tubes were blocked. The condition that actually prevented her from conceiving had gone undiagnosed for years because the test required to identify it did not exist at the levels of care she could access. In rural areas, practitioners treat what they can see with the resources available to them. Conditions that need advanced diagnostics remain invisible. The result is years of treatment aimed at one problem while another quietly prevents conception.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CAROUSEL: Three levels of care slider ═══ -->
+    <div class="essay-carousel-section bg-cream">
+        <div class="container reveal">
+            <div class="essay-carousel" data-carousel>
+                <div class="essay-carousel-viewport">
+                    <button class="essay-carousel-btn prev" aria-label="Previous">‹</button>
+                    <button class="essay-carousel-btn next" aria-label="Next">›</button>
+                    <div class="essay-carousel-track">
+                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Tier 1</span></div></div>
+                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Tier 2</span></div></div>
+                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Tier 3</span></div></div>
+                    </div>
+                </div>
+                <div class="essay-carousel-dots">
+                    <button class="essay-carousel-dot active" data-slide="0"></button>
+                    <button class="essay-carousel-dot" data-slide="1"></button>
+                    <button class="essay-carousel-dot" data-slide="2"></button>
+                </div>
+                <div class="essay-carousel-caption"><p>[Three levels of care images]</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SECTION 4 continued: Economic cost and distance ═══ -->
+    <div class="essay-body-section bg-cream">
+        <div class="container reveal">
+            <div class="essay-prose">
+                <p>However, reaching the third tier of care, the private ART clinic that finally diagnosed Saira correctly, did not resolve the problem. It introduced new ones. The first was economic. Infertility care is almost entirely absent from India's public health programmes, excluded from insurance, and largely unavailable in the public sector (Widge and Cleland 2009, Sharma et al. 2023). Treatment is available only through private clinics at commercial rates. A single IVF cycle in Kolkata costs between 2.5 and 4 lakh rupees, with no guarantee of success. For a household where her husband is the sole earner as a migrant labourer in another city making ten thousand rupees a month, this represents two to three years of total income. To continue care, Saira's family borrowed money and sold assets, tipping the household into debt for a treatment the state's own negligence made necessary.</p>
+                <p>The second problem was the distance. The treatment itself assumes that the patient lives close to the clinic. Saira does not. She travels six hours round trip for every visit, alone, while managing a hormonal regimen that requires self-administered injections at precise intervals. She described missing injections because the timing fell during travel, or because she could not manage the administration without medical supervision. The clinic that had recruited her from her village through a rural outreach camp, that had invested in identifying her as a patient and drawn her into a treatment cycle costing lakhs of rupees, provided no infrastructure to support her through it. ART clinics in Kolkata do not have emergency services or outpatient services where patients can come in case complications arise. It is more difficult for someone like Saira who is anyway travelling hundreds of kilometres to come to the urban clinic in the first place as there is nothing in her village. The distance the clinic was willing to bridge for the purpose of recruitment, it made no effort to bridge for the purpose of care. There is no satellite facility of the clinic in the village and in case of emergency Saira must travel all the way back to Kolkata.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ LEAFLET MAP: Saira's journey ═══ -->
+    <div class="essay-body-section bg-cream" style="padding-top:0;">
+        <div class="container reveal">
+            <div style="max-width:860px; margin:0 auto; border-radius:14px; overflow:hidden; box-shadow:0 8px 35px rgba(61,43,31,0.1); border:1px solid rgba(232,160,122,0.2);">
+                <div id="sairaJourneyMap" style="width:100%; height:380px;"></div>
+            </div>
+            <div style="max-width:860px; margin:0.8rem auto 0; text-align:center;">
+                <p style="font-family:'Lora',serif; font-size:0.8rem; font-style:italic; color:var(--text-light); margin:0;">Saira's journey through the three tiers of care: from her village in Taragunia to the diagnostic centre in Basirhat, and finally to the private ART clinic in Kolkata.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SECTION 4 continued: Miscarriage and conclusion ═══ -->
+    <div class="essay-body-section bg-warm-white">
+        <div class="container reveal">
+            <div class="essay-prose">
+                <p>When I returned to the field and met Saira again in 2025, she told me she had conceived through the IVF cycle. Then she miscarried. When she began bleeding, she called the clinic. It was a Saturday. She was told to come on Monday when she got the appointment. She was alone in her house without her husband, a migrant worker who was in another city gone for work, in a village with no health facility, three hours from the clinic that had told her it could give her a child. She took a photograph of the miscarriage on her phone so she would have something to show the doctor when she could finally get an appointment.</p>
+                <p>Saira's case forces us to confront the everyday reproductive precarity that women face at the margins of West Bengal. Her infertility was not a random biological event. It was produced over time by a state that failed to provide clean water, failed to build healthcare infrastructure, and then left her to navigate a market-driven fertility industry that recruited her for profit and abandoned her when the treatment failed.</p>
+                <p>Paul Farmer's concept of structural violence helps us understand what happened to Saira. Farmer argued that poverty and state neglect do not simply create difficult living conditions; they enter the body and produce disease (Farmer 2004). The arsenic in the groundwater, the bacteria in her pond, the silent scarring of her fallopian tubes: these were not misfortunes. They were the biological consequences of political choices about who receives clean water and who does not. Margaret Lock's concept of local biology takes this further, showing that the body is shaped by the specific ecological and political conditions of the place in which a person lives (Lock 1993). Saira's infertility cannot be separated from the arsenic geology of the Gangetic plains, the absence of piped water in her ward, or the five years it took three providers to produce a diagnosis that should have come in the first consultation.</p>
+                <p>Infertility in contexts like hers is not individual pathology. It is a structural condition. Confronting it demands more than clinical intervention. It requires holding the state accountable for its failure and recognising infertility as a public health consequence of governance neglect, not a private burden to be borne by the poorest households. It also demands accountability from commercial ART clinics that recruit rural women into expensive treatments but vanish when they need care the most.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="gingham-divider"></div>
+    <footer class="footer">
+        <div class="footer-gingham-strip"></div>
+        <div class="container py-4 d-flex justify-content-between align-items-center flex-wrap">
+            <span class="footer-brand">Voices from the Margins</span>
+            <span style="font-size:11px;color:rgba(255,255,255,.5);font-family:'Lora',serif;">© 2025 Gungun Islam. All rights reserved.</span>
+            <div>
+                <a href="#" class="me-3 small">Home</a>
+                <a href="#" class="me-3 small">Voices</a>
+                <a href="#" class="me-3 small">Map</a>
+                <a href="#" class="small">Contribute</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ═══ SCRIPTS ═══ -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+    // ─── Navbar scroll ───
+    window.addEventListener('scroll', function() {
+        document.getElementById('navWrapper').classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    // ─── Reveal on scroll (includes hanging-art) ───
+    document.querySelectorAll('.reveal, .hanging-art').forEach(function(el) {
+        new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.08 }).observe(el);
+    });
+
+    // ─── Carousel logic ───
+    document.querySelectorAll('[data-carousel]').forEach(function(carousel) {
+        var track = carousel.querySelector('.essay-carousel-track');
+        var slides = carousel.querySelectorAll('.essay-carousel-slide');
+        var dots = carousel.querySelectorAll('.essay-carousel-dot');
+        var prevBtn = carousel.querySelector('.essay-carousel-btn.prev');
+        var nextBtn = carousel.querySelector('.essay-carousel-btn.next');
+        var current = 0, total = slides.length;
+
+        function goTo(index) {
+            if (index < 0) index = total - 1;
+            if (index >= total) index = 0;
+            current = index;
+            track.style.transform = 'translateX(-' + (current * 100) + '%)';
+            dots.forEach(function(d, i) { d.classList.toggle('active', i === current); });
+        }
+
+        prevBtn.addEventListener('click', function() { goTo(current - 1); });
+        nextBtn.addEventListener('click', function() { goTo(current + 1); });
+        dots.forEach(function(dot) {
+            dot.addEventListener('click', function() { goTo(parseInt(this.getAttribute('data-slide'))); });
+        });
+
+        // Touch swipe
+        var startX = 0, isDragging = false;
+        var viewport = carousel.querySelector('.essay-carousel-viewport');
+        viewport.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; isDragging = true; }, { passive: true });
+        viewport.addEventListener('touchend', function(e) {
+            if (!isDragging) return; isDragging = false;
+            var diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) { diff > 0 ? goTo(current + 1) : goTo(current - 1); }
+        }, { passive: true });
+
+        // Add zoom/fit controls to slides with images
+        slides.forEach(function(slide) {
+            var img = slide.querySelector('img');
+            if (!img) return;
+
+            // Wrap image if not already wrapped
+            if (!img.parentElement.classList.contains('img-wrapper')) {
+                var wrapper = document.createElement('div');
+                wrapper.className = 'img-wrapper';
+                img.parentNode.insertBefore(wrapper, img);
+                wrapper.appendChild(img);
+            }
+
+            var wrapper = img.parentElement;
+            var scale = 1;
+            var fitMode = 'cover'; // cover or contain
+
+            // Create controls
+            var controls = document.createElement('div');
+            controls.className = 'img-controls';
+            controls.innerHTML =
+                '<button class="img-ctrl-btn img-zoom-in" title="Zoom in">+</button>' +
+                '<button class="img-ctrl-btn img-zoom-out" title="Zoom out">&minus;</button>' +
+                '<button class="img-ctrl-btn img-fit-toggle" title="Toggle fit">FIT</button>';
+            wrapper.appendChild(controls);
+
+            // Stop carousel swipe when interacting with controls
+            controls.addEventListener('touchstart', function(e) { e.stopPropagation(); }, { passive: true });
+
+            controls.querySelector('.img-zoom-in').addEventListener('click', function(e) {
+                e.stopPropagation();
+                scale = Math.min(scale + 0.25, 3);
+                img.style.transform = 'scale(' + scale + ')';
+            });
+            controls.querySelector('.img-zoom-out').addEventListener('click', function(e) {
+                e.stopPropagation();
+                scale = Math.max(scale - 0.25, 0.5);
+                img.style.transform = 'scale(' + scale + ')';
+            });
+            controls.querySelector('.img-fit-toggle').addEventListener('click', function(e) {
+                e.stopPropagation();
+                scale = 1;
+                img.style.transform = 'scale(1)';
+                if (fitMode === 'cover') {
+                    fitMode = 'contain';
+                    img.style.objectFit = 'contain';
+                    this.textContent = 'FILL';
+                } else {
+                    fitMode = 'cover';
+                    img.style.objectFit = 'cover';
+                    this.textContent = 'FIT';
+                }
+            });
+        });
+    });
+
+    // ─── ARSENIC PULSING HEATMAP ───
+    (function() {
+        // Inject pulse animation CSS
+        var style = document.createElement('style');
+        style.textContent = '' +
+            '@keyframes pulseRing { 0% { transform: scale(0.3); opacity: 0.7; } 70% { opacity: 0.15; } 100% { transform: scale(1); opacity: 0; } }' +
+            '.pulse-ring { animation: pulseRing 3s ease-out infinite; transform-origin: center; border-radius: 50%; position: absolute; pointer-events: none; }' +
+            '.pulse-core { border-radius: 50%; position: absolute; cursor: pointer; transition: transform 0.2s; }' +
+            '.pulse-core:hover { transform: scale(1.3); z-index: 1000 !important; }' +
+            '.pulse-container { position: absolute; pointer-events: none; }' +
+            '.pulse-container .pulse-core { pointer-events: auto; }';
+        document.head.appendChild(style);
+
+        var map = L.map('arsenicMap', {
+            center: [23.8, 88.0],
+            zoom: 7,
+            scrollWheelZoom: false,
+            zoomControl: false,
+            maxZoom: 7,
+            minZoom: 7,
+            maxBounds: [[21.5, 86.0], [27.5, 90.5]],
+            maxBoundsViscosity: 1.0,
+            dragging: false,
+            doubleClickZoom: false,
+            touchZoom: false,
+            boxZoom: false,
+            keyboard: false
+        });
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            maxZoom: 18
+        }).addTo(map);
+
+        // District-level hotspots — one per district, centered on district HQ
+        var hotspots = [
+            // HIGHLY AFFECTED — 9 districts (>300 µg/L, red)
+            { lat: 24.18, lng: 88.26, name: "Murshidabad", district: "Murshidabad", ug: "Up to 3,003 µg/L", level: "Highly Affected", color: "#D32F2F", size: 40, delay: 0 },
+            { lat: 23.40, lng: 88.52, name: "Nadia", district: "Nadia", ug: "Up to 3,200 µg/L", level: "Highly Affected", color: "#D32F2F", size: 38, delay: 0.8 },
+            { lat: 22.85, lng: 88.45, name: "North 24 Parganas", district: "North 24 Parganas", ug: "Up to 1,000 µg/L", level: "Highly Affected", color: "#D32F2F", size: 42, delay: 1.5 },
+            { lat: 22.33, lng: 88.35, name: "South 24 Parganas", district: "South 24 Parganas", ug: "Up to 3,700 µg/L", level: "Highly Affected", color: "#D32F2F", size: 44, delay: 0.4 },
+            { lat: 25.01, lng: 88.14, name: "Malda", district: "Malda", ug: "Up to 3,000 µg/L", level: "Highly Affected", color: "#D32F2F", size: 36, delay: 2.0 },
+            { lat: 23.55, lng: 88.12, name: "Purba Bardhaman", district: "Purba Bardhaman", ug: ">300 µg/L in eastern blocks", level: "Highly Affected", color: "#D32F2F", size: 30, delay: 1.2 },
+            { lat: 22.40, lng: 87.95, name: "Howrah", district: "Howrah", ug: ">300 µg/L locally", level: "Highly Affected", color: "#D32F2F", size: 26, delay: 0.6 },
+            { lat: 22.98, lng: 87.62, name: "Hooghly", district: "Hooghly", ug: ">300 µg/L locally", level: "Highly Affected", color: "#D32F2F", size: 26, delay: 1.8 },
+            { lat: 22.55, lng: 88.35, name: "Kolkata", district: "Kolkata", ug: "Up to 300+ µg/L in south", level: "Highly Affected", color: "#D32F2F", size: 28, delay: 0.3 },
+
+            // MILDLY AFFECTED — 5 districts (10–50 µg/L, yellow)
+            { lat: 26.32, lng: 89.45, name: "Koch Bihar", district: "Koch Bihar", ug: "10–50 µg/L", level: "Mildly Affected", color: "#FBC02D", size: 22, delay: 0.5 },
+            { lat: 26.55, lng: 88.73, name: "Jalpaiguri", district: "Jalpaiguri", ug: "10–50 µg/L", level: "Mildly Affected", color: "#FBC02D", size: 22, delay: 1.3 },
+            { lat: 27.04, lng: 88.26, name: "Darjeeling", district: "Darjeeling", ug: "10–50 µg/L", level: "Mildly Affected", color: "#FBC02D", size: 20, delay: 2.1 },
+            { lat: 25.62, lng: 87.82, name: "Uttar Dinajpur", district: "Uttar Dinajpur", ug: "10–50 µg/L", level: "Mildly Affected", color: "#FBC02D", size: 22, delay: 0.9 },
+            { lat: 25.18, lng: 88.75, name: "Dakshin Dinajpur", district: "Dakshin Dinajpur", ug: "10–50 µg/L", level: "Mildly Affected", color: "#FBC02D", size: 22, delay: 1.7 },
+
+            // UNAFFECTED — 5 districts (<10 µg/L, green)
+            { lat: 23.23, lng: 87.07, name: "Bankura", district: "Bankura", ug: "<10 µg/L", level: "Unaffected", color: "#388E3C", size: 20, delay: 0.7 },
+            { lat: 23.86, lng: 87.62, name: "Birbhum", district: "Birbhum", ug: "<10 µg/L", level: "Unaffected", color: "#388E3C", size: 20, delay: 1.5 },
+            { lat: 23.33, lng: 86.37, name: "Purulia", district: "Purulia", ug: "<10 µg/L", level: "Unaffected", color: "#388E3C", size: 20, delay: 2.3 },
+            { lat: 22.28, lng: 87.65, name: "Purba Medinipur", district: "Purba Medinipur", ug: "<10 µg/L", level: "Unaffected", color: "#388E3C", size: 20, delay: 1.1 },
+            { lat: 22.42, lng: 87.08, name: "Paschim Medinipur", district: "Paschim Medinipur", ug: "<10 µg/L", level: "Unaffected", color: "#388E3C", size: 20, delay: 1.9 },
+        ];
+
+        // Create pulsing markers using custom DivIcon overlays
+        hotspots.forEach(function(h) {
+            // Outer pulsing rings (3 staggered)
+            var pulseSize = h.size * 2.5;
+            var coreSize = h.size * 0.4;
+
+            var iconHtml = '' +
+                '<div style="position:relative; width:' + pulseSize + 'px; height:' + pulseSize + 'px;">' +
+                // Ring 1
+                '<div class="pulse-ring" style="' +
+                    'width:' + pulseSize + 'px; height:' + pulseSize + 'px;' +
+                    'border: 2px solid ' + h.color + ';' +
+                    'top:0; left:0;' +
+                    'animation-delay:' + h.delay + 's;' +
+                '"></div>' +
+                // Ring 2
+                '<div class="pulse-ring" style="' +
+                    'width:' + pulseSize + 'px; height:' + pulseSize + 'px;' +
+                    'border: 1.5px solid ' + h.color + ';' +
+                    'top:0; left:0;' +
+                    'animation-delay:' + (h.delay + 1) + 's;' +
+                '"></div>' +
+                // Ring 3
+                '<div class="pulse-ring" style="' +
+                    'width:' + pulseSize + 'px; height:' + pulseSize + 'px;' +
+                    'border: 1px solid ' + h.color + ';' +
+                    'top:0; left:0;' +
+                    'animation-delay:' + (h.delay + 2) + 's;' +
+                '"></div>' +
+                // Static glow
+                '<div style="' +
+                    'position:absolute; border-radius:50%;' +
+                    'width:' + (h.size * 1.2) + 'px; height:' + (h.size * 1.2) + 'px;' +
+                    'top:' + ((pulseSize - h.size * 1.2) / 2) + 'px;' +
+                    'left:' + ((pulseSize - h.size * 1.2) / 2) + 'px;' +
+                    'background: radial-gradient(circle, ' + h.color + '33 0%, ' + h.color + '11 50%, transparent 70%);' +
+                '"></div>' +
+                // Core dot
+                '<div class="pulse-core" style="' +
+                    'width:' + coreSize + 'px; height:' + coreSize + 'px;' +
+                    'background:' + h.color + ';' +
+                    'border: 2px solid #fff;' +
+                    'box-shadow: 0 0 8px ' + h.color + ', 0 0 20px ' + h.color + '44;' +
+                    'top:' + ((pulseSize - coreSize) / 2) + 'px;' +
+                    'left:' + ((pulseSize - coreSize) / 2) + 'px;' +
+                '"></div>' +
+                '</div>';
+
+            var icon = L.divIcon({
+                className: 'pulse-container',
+                html: iconHtml,
+                iconSize: [pulseSize, pulseSize],
+                iconAnchor: [pulseSize / 2, pulseSize / 2]
+            });
+
+            var marker = L.marker([h.lat, h.lng], { icon: icon }).addTo(map);
+
+            marker.bindPopup(
+                '<div style="font-family:\'DM Sans\',sans-serif; min-width:160px; padding:2px;">' +
+                '<div style="font-family:\'Playfair Display\',serif; font-size:1rem; font-weight:600; color:#3D2B1F;">' + h.name + '</div>' +
+                '<div style="display:flex; align-items:center; gap:6px; padding:6px 0; margin-top:4px; border-top:1px solid #eee;">' +
+                '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + h.color + ';"></span>' +
+                '<span style="font-size:0.8rem; font-weight:600; color:' + h.color + ';">' + h.level + '</span>' +
+                '</div>' +
+                '<div style="font-size:0.75rem; color:#8B6A58;">' + h.ug + '</div>' +
+                '</div>'
+            );
+        });
+
+        // Legend — bottom left, compact
+        var legend = L.control({ position: 'bottomleft' });
+        legend.onAdd = function() {
+            var div = L.DomUtil.create('div', '');
+            div.style.cssText = 'background:rgba(255,255,255,0.92);padding:6px 10px;border-radius:6px;font-family:"DM Sans",sans-serif;font-size:10px;box-shadow:0 2px 8px rgba(0,0,0,0.12);line-height:1.8;';
+            div.innerHTML =
+                '<div><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#D32F2F;margin-right:5px;"></span>High (&gt;50)</div>' +
+                '<div><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#FBC02D;margin-right:5px;"></span>Medium (10–50)</div>' +
+                '<div><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#388E3C;margin-right:5px;"></span>Low (&lt;10 µg/L)</div>';
+            return div;
+        };
+        legend.addTo(map);
+    })();
+
+    // ─── ARSENIC RISK CALCULATOR ───
+    (function() {
+        var data = {
+            // Highly affected — 9 districts (>300 µg/L found, 135,555 samples)
+            malda: {
+                name: "Malda", tier: "severe", tierLabel: "Highly Affected",
+                range: ">300 µg/L recorded in tubewells",
+                samples: "Part of 135,555 samples from 9 highly affected districts",
+                detail: "Five blocks, Kaliachak-I, Kaliachak-II, Kaliachak-III, English Bazar, and Manikchak, are the most severely affected, situated along the Ganges floodplain. Arsenicosis patients identified in multiple villages.",
+                cite: "Chakraborti et al. (2009), Purkait (2008)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            murshidabad: {
+                name: "Murshidabad", tier: "severe", tierLabel: "Highly Affected",
+                range: "Up to 3,003 µg/L recorded; 26.7% of wells >50 µg/L",
+                samples: "29,668 hand tubewell samples analyzed across all 26 blocks",
+                detail: "One of the five most widely affected districts. Arsenicosis patients identified from multiple villages across affected blocks. Contamination concentrated east of the Bhagirathi River.",
+                cite: "Rahman et al. (2005); Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/16440510/"
+            },
+            nadia: {
+                name: "Nadia", tier: "severe", tierLabel: "Highly Affected",
+                range: "Up to 3,200 µg/L recorded; all 17 blocks exceed 50 µg/L",
+                samples: "28,947 tubewell samples analyzed over 23 years",
+                detail: "The only district where every single block exceeds the 50 µg/L standard. An estimated 2.1 million people drink water above 10 µg/L. Arsenicosis prevalence of 15.4% documented in surveyed villages.",
+                cite: "Rahman et al. (2014); Chakraborti et al. (2009)",
+                citeUrl: "https://www.sciencedirect.com/science/article/abs/pii/S002216941300766X"
+            },
+            north24: {
+                name: "North 24 Parganas", tier: "severe", tierLabel: "Highly Affected",
+                range: "Up to 1,000 µg/L recorded; 29.2% of wells >50 µg/L",
+                samples: "48,030 tubewell samples analyzed across all 22 blocks",
+                detail: "The single most arsenic-affected district by total affected habitations. 21 of 22 blocks exceed 50 µg/L. One of the five most widely affected districts with arsenicosis patients identified from multiple villages.",
+                cite: "Rahman et al. (2003); Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/12635818/"
+            },
+            south24: {
+                name: "South 24 Parganas", tier: "severe", tierLabel: "Highly Affected",
+                range: "Up to 3,700 µg/L, the highest ever recorded in West Bengal",
+                samples: "8,334 tubewell samples analyzed across 17 blocks",
+                detail: "Holds the state's all-time maximum (3,700 µg/L at Baruipur). Contamination concentrated in northern blocks adjoining Kolkata; southern Sundarbans blocks are largely arsenic-free but suffer salinity. One of the five most widely affected districts.",
+                cite: "Chakraborti et al. (2009); ADB (2018)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            bardhaman: {
+                name: "Bardhaman (Purba)", tier: "severe", tierLabel: "Highly Affected",
+                range: ">300 µg/L recorded in eastern blocks",
+                samples: "Part of 135,555 samples from 9 highly affected districts",
+                detail: "Contamination confined to eastern blocks along the Bhagirathi-Hooghly floodplain. 5 blocks officially affected by PHED-IMIS with ~291,000 people exposed. Western blocks are unaffected.",
+                cite: "Chakraborti et al. (2009); ADB (2018)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            howrah: {
+                name: "Howrah", tier: "severe", tierLabel: "Highly Affected",
+                range: ">300 µg/L recorded in affected blocks",
+                samples: "Part of 135,555 samples from 9 highly affected districts",
+                detail: "The least spatially affected of the 9 core districts. Only 2 blocks officially listed as affected by PHED-IMIS. Contamination is concentrated in localized hotspots.",
+                cite: "Chakraborti et al. (2009); ADB (2018)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            hooghly: {
+                name: "Hooghly", tier: "severe", tierLabel: "Highly Affected",
+                range: ">300 µg/L recorded in affected blocks",
+                samples: "Part of 135,555 samples from 9 highly affected districts",
+                detail: "Two blocks officially affected (Balagarh and Pandua) with ~98,050 people exposed. Most blocks in the district are unaffected.",
+                cite: "Chakraborti et al. (2009); ADB (2018)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            kolkata: {
+                name: "Kolkata", tier: "severe", tierLabel: "Highly Affected",
+                range: "Up to 190–300+ µg/L in southern wards",
+                samples: "4,210 samples across all 141 KMC wards over 23 years",
+                detail: "77 wards exceed 10 µg/L and 37 wards exceed 50 µg/L. Risk is concentrated in southern Kolkata (Jadavpur, Behala, Garden Reach, Tollygunge, Metiabruz). Piped surface water from the Hooghly is largely safe; risk is in private tubewell users.",
+                cite: "Chakraborti et al. (2017), Chemosphere 180:437–447",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            // Mildly affected — 5 districts (10–50 µg/L, 2,923 samples)
+            coochbehar: {
+                name: "Koch Bihar (Cooch Behar)", tier: "mild", tierLabel: "Mildly Affected",
+                range: "10–50 µg/L; no samples >100 µg/L",
+                samples: "Part of 2,923 samples from 5 mildly affected districts",
+                detail: "Arsenic concentrations between 10–50 µg/L detected. 5.7% of samples from all five mildly affected districts exceeded 10 µg/L; only 0.2% exceeded 50 µg/L.",
+                cite: "Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            jalpaiguri: {
+                name: "Jalpaiguri", tier: "mild", tierLabel: "Mildly Affected",
+                range: "10–50 µg/L; no samples >100 µg/L",
+                samples: "Part of 2,923 samples from 5 mildly affected districts",
+                detail: "Arsenic concentrations between 10–50 µg/L detected. Located in the Himalayan terai/duar belt.",
+                cite: "Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            darjeeling: {
+                name: "Darjeeling", tier: "mild", tierLabel: "Mildly Affected",
+                range: "10–50 µg/L; no samples >100 µg/L",
+                samples: "Part of 2,923 samples from 5 mildly affected districts",
+                detail: "Arsenic concentrations between 10–50 µg/L detected. Located in the Himalayan foothills.",
+                cite: "Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            northdinajpur: {
+                name: "North Dinajpur (Uttar Dinajpur)", tier: "mild", tierLabel: "Mildly Affected",
+                range: "10–50 µg/L; no samples >100 µg/L",
+                samples: "Part of 2,923 samples from 5 mildly affected districts",
+                detail: "Arsenic concentrations between 10–50 µg/L detected.",
+                cite: "Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            southdinajpur: {
+                name: "South Dinajpur (Dakshin Dinajpur)", tier: "mild", tierLabel: "Mildly Affected",
+                range: "10–50 µg/L; no samples >100 µg/L",
+                samples: "Part of 2,923 samples from 5 mildly affected districts",
+                detail: "Arsenic concentrations between 10–50 µg/L detected.",
+                cite: "Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            // Unaffected — 5 districts (<10 µg/L, 1,672 samples)
+            bankura: {
+                name: "Bankura", tier: "safe", tierLabel: "Unaffected",
+                range: "All samples below 10 µg/L (below detection limit of 3 µg/L)",
+                samples: "Part of 1,672 samples from 5 unaffected districts",
+                detail: "All samples returned arsenic values below the instrument detection limit of 3 µg/L. Located on the Chotanagpur crystalline basement and Rarh lateritic terrain.",
+                cite: "Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            birbhum: {
+                name: "Birbhum", tier: "safe", tierLabel: "Unaffected",
+                range: "All samples below 10 µg/L",
+                samples: "Part of 1,672 samples from 5 unaffected districts",
+                detail: "All samples below detection. Note: Birbhum has fluoride contamination issues instead.",
+                cite: "Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            purulia: {
+                name: "Purulia", tier: "safe", tierLabel: "Unaffected",
+                range: "All samples below 10 µg/L",
+                samples: "Part of 1,672 samples from 5 unaffected districts",
+                detail: "All samples below detection. Located on hard-rock terrain. Note: Purulia has fluoride contamination issues instead.",
+                cite: "Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            medinipureast: {
+                name: "Medinipur East (Purba Medinipur)", tier: "safe", tierLabel: "Unaffected",
+                range: "All samples below 10 µg/L",
+                samples: "Part of 1,672 samples from 5 unaffected districts",
+                detail: "All samples below detection.",
+                cite: "Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            },
+            medinipurwest: {
+                name: "Medinipur West (Paschim Medinipur)", tier: "safe", tierLabel: "Unaffected",
+                range: "All samples below 10 µg/L",
+                samples: "Part of 1,672 samples from 5 unaffected districts",
+                detail: "All samples below detection.",
+                cite: "Chakraborti et al. (2009)",
+                citeUrl: "https://pubmed.ncbi.nlm.nih.gov/19382148/"
+            }
+        };
+
+        document.getElementById('districtSelect').addEventListener('change', function() {
+            var val = this.value;
+            var resultDiv = document.getElementById('riskResult');
+            var defaultDiv = document.getElementById('riskDefault');
+
+            if (!val || !data[val]) {
+                resultDiv.style.display = 'none';
+                resultDiv.className = '';
+                if (defaultDiv) defaultDiv.style.display = 'flex';
+                return;
+            }
+
+            if (defaultDiv) defaultDiv.style.display = 'none';
+
+            var d = data[val];
+            resultDiv.className = d.tier;
+            resultDiv.innerHTML =
+                '<span class="risk-result-badge ' + d.tier + '">' + d.tierLabel + '</span>' +
+                '<div class="risk-result-district">' + d.name + '</div>' +
+                '<div class="risk-result-detail">' +
+                    '<strong>Arsenic:</strong> ' + d.range + '<br>' +
+                    '<strong>Samples:</strong> ' + d.samples + '<br>' +
+                    d.detail +
+                '</div>' +
+                '<div class="risk-result-cite">Source: ' + d.cite + ' · <a href="' + d.citeUrl + '" target="_blank" rel="noopener">View study</a></div>';
+            resultDiv.style.display = 'block';
+        });
+    })();
+
+    // ─── SAIRA'S JOURNEY MAP (animated flowmap) ───
+    (function() {
+        var jMap = L.map('sairaJourneyMap', {
+            center: [22.75, 88.55],
+            zoom: 10,
+            scrollWheelZoom: false,
+            zoomControl: false,
+            dragging: false,
+            doubleClickZoom: false,
+            touchZoom: false,
+            boxZoom: false,
+            keyboard: false
+        });
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            maxZoom: 18
+        }).addTo(jMap);
+
+        var stops = [
+            { lat: 22.92, lng: 88.72, name: "Taragunia", desc: "Saira's village", tier: "Rural", color: "#D32F2F", shape: "diamond" },
+            { lat: 22.66, lng: 88.87, name: "Basirhat", desc: "Diagnostic centre", tier: "Semi-urban", color: "#E67E22", shape: "square" },
+            { lat: 22.57, lng: 88.36, name: "Kolkata", desc: "Private ART clinic", tier: "Urban ART", color: "#8E44AD", shape: "circle" }
+        ];
+
+        // SVG icons
+        function makeIcon(s) {
+            var size = 20;
+            var svg;
+            if (s.shape === 'diamond') {
+                svg = '<svg width="'+size+'" height="'+size+'" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><polygon points="10,1 19,10 10,19 1,10" fill="'+s.color+'" stroke="#fff" stroke-width="2"/></svg>';
+            } else if (s.shape === 'square') {
+                svg = '<svg width="'+size+'" height="'+size+'" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="16" height="16" rx="2" fill="'+s.color+'" stroke="#fff" stroke-width="2"/></svg>';
+            } else {
+                svg = '<svg width="'+size+'" height="'+size+'" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" fill="'+s.color+'" stroke="#fff" stroke-width="2"/></svg>';
+            }
+            return L.divIcon({ className: '', html: svg, iconSize: [size, size], iconAnchor: [size/2, size/2] });
+        }
+
+        // Add markers and labels
+        stops.forEach(function(s) {
+            var marker = L.marker([s.lat, s.lng], { icon: makeIcon(s) }).addTo(jMap);
+            marker.bindPopup(
+                '<div style="font-family:\'DM Sans\',sans-serif; min-width:140px;">' +
+                '<div style="font-family:\'Playfair Display\',serif; font-size:0.95rem; font-weight:600; color:#3D2B1F;">' + s.name + '</div>' +
+                '<div style="font-size:0.75rem; color:' + s.color + '; font-weight:600; margin:2px 0;">' + s.tier + '</div>' +
+                '<div style="font-size:0.75rem; color:#8B6A58;">' + s.desc + '</div></div>'
+            );
+            L.marker([s.lat, s.lng], {
+                icon: L.divIcon({
+                    className: '',
+                    html: '<div style="background:rgba(255,255,255,0.92);padding:2px 7px;border-radius:4px;font-family:\'DM Sans\',sans-serif;font-size:10px;font-weight:600;color:'+s.color+';box-shadow:0 1px 4px rgba(0,0,0,0.1);white-space:nowrap;">'+s.name+'</div>',
+                    iconSize: [80, 18], iconAnchor: [40, -12]
+                })
+            }).addTo(jMap);
+        });
+
+        // Distance labels at midpoints
+        var mid1 = [(stops[0].lat + stops[1].lat) / 2, (stops[0].lng + stops[1].lng) / 2];
+        var mid2 = [(stops[1].lat + stops[2].lat) / 2, (stops[1].lng + stops[2].lng) / 2];
+        L.marker(mid1, { icon: L.divIcon({ className: '', html: '<div style="background:rgba(211,47,47,0.1);padding:2px 6px;border-radius:3px;font-family:\'DM Sans\',sans-serif;font-size:9px;font-weight:700;color:#D32F2F;white-space:nowrap;">~25 km</div>', iconSize: [50, 16], iconAnchor: [25, 8] }) }).addTo(jMap);
+        L.marker(mid2, { icon: L.divIcon({ className: '', html: '<div style="background:rgba(211,47,47,0.1);padding:2px 6px;border-radius:3px;font-family:\'DM Sans\',sans-serif;font-size:9px;font-weight:700;color:#D32F2F;white-space:nowrap;">~65 km</div>', iconSize: [50, 16], iconAnchor: [25, 8] }) }).addTo(jMap);
+
+        // Animated single dot on canvas
+        var canvas = L.DomUtil.create('canvas');
+        var FlowOverlay = L.Layer.extend({
+            onAdd: function(map) {
+                this._map = map;
+                map.getPane('overlayPane').appendChild(canvas);
+                map.on('moveend zoomend resize', this._update, this);
+                this._update();
+                this._animate();
+            },
+            onRemove: function(map) {
+                L.DomUtil.remove(canvas);
+                map.off('moveend zoomend resize', this._update, this);
+                cancelAnimationFrame(this._raf);
+            },
+            _update: function() {
+                var size = this._map.getSize();
+                canvas.width = size.x; canvas.height = size.y;
+                var topLeft = this._map.containerPointToLayerPoint([0, 0]);
+                L.DomUtil.setPosition(canvas, topLeft);
+                canvas.style.pointerEvents = 'none';
+                canvas.style.position = 'absolute';
+                canvas.style.zIndex = '400';
+            },
+            _animate: function() {
+                var self = this;
+                var t = 0;
+                var speed = 0.0008; // very slow
+                var forward = true;
+
+                function bezierPoint(p1, cp, p2, prog) {
+                    var inv = 1 - prog;
+                    return {
+                        x: inv*inv*p1.x + 2*inv*prog*cp.x + prog*prog*p2.x,
+                        y: inv*inv*p1.y + 2*inv*prog*cp.y + prog*prog*p2.y
+                    };
+                }
+
+                function draw() {
+                    t += speed;
+                    // Full journey: 0-0.5 = leg 1 (Taragunia to Basirhat), 0.5-1.0 = leg 2 (Basirhat to Kolkata)
+                    // Then reverse
+                    if (t >= 1) { t = 0; forward = !forward; }
+
+                    var ctx = canvas.getContext('2d');
+                    var map = self._map;
+                    if (!map) return;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    var pts = stops.map(function(s) { return map.latLngToContainerPoint([s.lat, s.lng]); });
+
+                    // Draw both bezier curves (static)
+                    for (var i = 0; i < 2; i++) {
+                        var p1 = pts[i], p2 = pts[i+1];
+                        var dx = p2.x - p1.x, dy = p2.y - p1.y;
+                        var cx = (p1.x + p2.x) / 2 - dy * 0.25;
+                        var cy = (p1.y + p2.y) / 2 + dx * 0.25;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.quadraticCurveTo(cx, cy, p2.x, p2.y);
+                        ctx.strokeStyle = 'rgba(211,47,47,0.2)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+
+                    // Single animated dot
+                    var leg, legProgress;
+                    var actualT = forward ? t : (1 - t);
+                    if (actualT < 0.5) {
+                        leg = 0;
+                        legProgress = actualT * 2;
+                    } else {
+                        leg = 1;
+                        legProgress = (actualT - 0.5) * 2;
+                    }
+
+                    var p1 = pts[leg], p2 = pts[leg + 1];
+                    var dx = p2.x - p1.x, dy = p2.y - p1.y;
+                    var cpx = (p1.x + p2.x) / 2 - dy * 0.25;
+                    var cpy = (p1.y + p2.y) / 2 + dx * 0.25;
+                    var dot = bezierPoint(p1, {x: cpx, y: cpy}, p2, legProgress);
+
+                    // Glow
+                    ctx.beginPath();
+                    ctx.arc(dot.x, dot.y, 10, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(211,47,47,0.15)';
+                    ctx.fill();
+                    // Dot
+                    ctx.beginPath();
+                    ctx.arc(dot.x, dot.y, 4.5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#D32F2F';
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+
+                    self._raf = requestAnimationFrame(draw);
+                }
+                draw();
+            }
+        });
+
+        new FlowOverlay().addTo(jMap);
+
+        // Legend
+        var legend = L.control({ position: 'bottomleft' });
+        legend.onAdd = function() {
+            var div = L.DomUtil.create('div', '');
+            div.style.cssText = 'background:rgba(255,255,255,0.94);padding:8px 12px;border-radius:8px;font-family:"DM Sans",sans-serif;font-size:10px;box-shadow:0 2px 8px rgba(0,0,0,0.12);line-height:2;';
+            div.innerHTML =
+                '<div style="font-weight:700;margin-bottom:2px;">Saira\'s Journey</div>' +
+                '<div><svg width="12" height="12" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:4px;"><polygon points="10,1 19,10 10,19 1,10" fill="#D32F2F" stroke="#fff" stroke-width="2"/></svg>Rural village</div>' +
+                '<div><svg width="12" height="12" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:4px;"><rect x="2" y="2" width="16" height="16" rx="2" fill="#E67E22" stroke="#fff" stroke-width="2"/></svg>Semi-urban OPD</div>' +
+                '<div><svg width="12" height="12" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:4px;"><circle cx="10" cy="10" r="8" fill="#8E44AD" stroke="#fff" stroke-width="2"/></svg>Urban ART</div>';
+            return div;
+        };
+        legend.addTo(jMap);
+    })();
+    </script>
+
+</body>
+</html>

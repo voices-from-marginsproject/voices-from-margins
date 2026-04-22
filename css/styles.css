@@ -414,3 +414,14 @@ body {
 /* ═══ PAGE SHOW/HIDE ═══ */
 .page-section { display: none; }
 .page-section.active-page { display: block; }
+/* Hanging illustrations */
+.hanging-art {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.85;
+}
+.hanging-art img {
+    max-width: 100%;
+    height: auto;
+}
