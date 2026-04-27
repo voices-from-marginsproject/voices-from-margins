@@ -37,7 +37,13 @@
     body {
         font-family: 'DM Sans', sans-serif;
         color: var(--text-primary);
+        /* Page-specific background: use navbar.jpeg for this page only */
         background: var(--warm-white);
+        background-image: url('assets/navbar.jpeg');
+        background-repeat: no-repeat;
+        background-position: center top;
+        background-size: cover;
+        background-attachment: fixed;
         overflow-x: hidden;
     }
 
@@ -80,7 +86,7 @@
     .navbar-gingham .nav-link.active { color: var(--coral-deep) !important; }
     .navbar-gingham .navbar-toggler { border: 1.5px solid var(--dark-earth); }
     .navbar-gingham .navbar-toggler-icon {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%233D2B1F' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        background-image: url('data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 30 30\'%3e%3cpath stroke=\'%233D2B1F\' stroke-linecap=\'round\' stroke-miterlimit=\'10\' stroke-width=\'2\' d=\'M4 7h22M4 15h22M4 23h22\'/%3e%3c/svg%3e');
     }
 
     /* ═══ BACKGROUNDS ═══ */
@@ -188,6 +194,7 @@
         font-family: 'Lora', serif;
         font-size: 0.8rem; font-style: italic;
         line-height: 1.55; color: var(--text-light);
+         text-align: center;
     }
     @media (max-width: 600px) {
         .essay-img-pair { grid-template-columns: 1fr; }
@@ -265,13 +272,13 @@
 
     /* ═══ IMAGE CAROUSEL ═══ */
     .essay-carousel-section { padding: 1.5rem 0; position: relative; overflow: hidden; }
-    .essay-carousel { max-width: 860px; margin: 0 auto; position: relative; }
-    .essay-carousel-viewport { position: relative; overflow: hidden; border-radius: 14px; box-shadow: 0 12px 50px rgba(61,43,31,0.12); background: var(--dark-earth); }
+    .essay-carousel { max-width: 500px; margin: 0 auto; position: relative; }
+.essay-carousel-viewport { position: relative; overflow: hidden; border-radius: 14px; box-shadow: 0 12px 50px rgba(61,43,31,0.12); background: transparent; }
     .essay-carousel-track { display: flex; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
     .essay-carousel-slide { min-width: 100%; position: relative; }
-    .essay-carousel-slide img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: center; display: block; cursor: pointer; transition: transform 0.3s ease; }
+    .essay-carousel-slide img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center; display: block; cursor: pointer; transition: transform 0.3s ease; }
     .essay-carousel-slide .img-wrapper {
-        width: 100%; aspect-ratio: 16 / 10; overflow: hidden; position: relative;
+        width: 100%; aspect-ratio: 4 / 5; overflow: hidden; position: relative;
     }
     .essay-carousel-slide .img-wrapper img {
         width: 100%; height: 100%; object-fit: cover; object-position: center;
@@ -453,6 +460,27 @@
         .hanging-art { display: none; }
         #arsenicMap { height: 380px; }
     }
+    /* Make ONLY the Three Levels of Care carousel bigger and contain images properly */
+        .essay-carousel-section.bg-cream .essay-carousel {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .essay-carousel-section.bg-cream .essay-carousel-slide img {
+            width: 100%;
+            height: 500px;
+            aspect-ratio: auto;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+        .essay-carousel-section.bg-cream .essay-carousel-slide .img-wrapper {
+            aspect-ratio: auto;
+            height: 500px;
+        }
+        .essay-carousel-section.bg-cream .essay-carousel-slide .img-wrapper img {
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body>
@@ -481,7 +509,7 @@
 
     <!-- ═══ HERO ═══ -->
     <div class="essay-hero">
-        <img class="essay-hero-img" src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1400&q=80" alt="West Bengal landscape">
+<img class="essay-hero-img" src="assets/navbar.jpeg" alt="Muslim woman in rural West Bengal">
         <div class="essay-hero-overlay"></div>
         <div class="container essay-hero-content">
             <div class="col-lg-8">
@@ -508,9 +536,9 @@
             <div class="essay-prose drop-cap">
                 <p>I first met Saira in the waiting room of a private fertility clinic in Kolkata, on a sweltering afternoon in May 2024. I was there for my preliminary summer fieldwork. The room was crowded and airless, thick with heat and the low hum of people waiting. We stood side by side near a small water tap, waiting for our turn. As we spoke about the heat, it became clear that for Saira, the exhaustion had not begun in the clinic. She had been travelling since early morning from her village in North 24 Parganas. There are no assisted reproductive technology clinics in rural North 24 Parganas; most people seeking fertility treatment travel to Kolkata, crossing long distances to reach the nearest provider (to understand the distances rural individuals must travel to access care, see the interactive map on the following page). Reaching the clinic had taken her nearly three hours, changing buses and trains and standing the entire way. By the time she arrived, her clothes were damp with sweat, her body already worn down.</p>
                 <figure class="essay-img-pair">
-                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
-                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
-                    <figcaption>[Left: caption. Right: caption.]</figcaption>
+                    <div class="img-cell"><img src="assets/bodymap1.png" alt="Muslim woman in rural West Bengal"></div>
+                    <div class="img-cell"><img src="assets/ART.png" alt="Saira at the clinic"></div>
+                <figcaption><figcaption>Between village and clinic.</figcaption>.</figcaption>
                 </figure>
                 <p>Saira was thirty-four years old, married at seventeen, and in all the years since had never conceived. When I first met her, she was in the middle of her first cycle of IVF, a process that requires repeated visits for injections, scans, and consultations. Each one demanded that she undertake the same long journey again. For the past two months, she had been making these trips alone, moving back and forth between a village where treatment was unavailable and a city where it could be accessed. The treatment had already begun to take a visible toll on her body, as she described how the injections caused her whole body to swell, leaving her veins feeling hard and heavy, while the pain in her lower back, on some days, made it difficult for her even to stand. Travelling in this condition puts immense pressure on her body. But the distance she travelled to access care was only one part of what she endured. At the clinic, the doctors traced the source of her condition back to the place she had come from. Years of bathing in pond water had led to untreated pelvic inflammatory disease. Over time, this had scarred and blocked both of her fallopian tubes. By the time it was diagnosed, the damage was irreversible, leaving IVF as the only option.</p>
             </div>
@@ -525,9 +553,15 @@
                     <button class="essay-carousel-btn prev" aria-label="Previous">‹</button>
                     <button class="essay-carousel-btn next" aria-label="Next">›</button>
                     <div class="essay-carousel-track">
-                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Image 1</span></div></div>
-                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Image 2</span></div></div>
-                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Image 3</span></div></div>
+                      <div class="essay-carousel-slide">
+    <img src="assets/saira2.jpeg" alt="ART clinic in Kolkata where Saira receives IVF treatment">
+</div>
+<div class="essay-carousel-slide">
+    <img src="assets/sairavillage.jpeg" alt="The long bus journey between village and city">
+</div>
+<div class="essay-carousel-slide">
+    <img src="assets/111.jpeg" alt="The village in North 24 Parganas where Saira lives">
+</div>
                     </div>
                 </div>
                 <div class="essay-carousel-dots">
@@ -535,7 +569,7 @@
                     <button class="essay-carousel-dot" data-slide="1"></button>
                     <button class="essay-carousel-dot" data-slide="2"></button>
                 </div>
-                <div class="essay-carousel-caption"><p>[Replace with your fieldwork images]</p></div>
+              <div class="essay-carousel-caption"><p>Fieldwork photographs from North 24 Parganas and Kolkata, West Bengal (2024–2025)</p></div>
             </div>
         </div>
     </div>
@@ -555,11 +589,11 @@
         <div class="container reveal">
             <div class="essay-prose">
                 <p>But bathing in a pond was never a choice. Saira's village sits in North 24 Parganas, one of the worst arsenic-affected districts in West Bengal, where groundwater itself is unsafe, contaminated above WHO limits (Chakraborti et al. 2009). In trying to avoid this contaminated groundwater, the community is pushed toward surface water, relying on the village pond. However, what appears as a choice of shift between sources is, in practice, a movement between two forms of harm, both shaped by the state failure to provide safe water infrastructure.</p>
-                <p>Arsenic contamination across the Ganga-Brahmaputra-Meghna floodplains has been known for decades, leaching naturally from alluvial sediments into shallow aquifers. First identified in the 1970s and recognized as a major public health crisis by the late 1990s (Chakraborti et al. 2010), it has been met with a state response marked by delay and underinvestment. Deep tube wells that access safer aquifers remain too expensive for most rural households and have never been installed at the scale required (Sengupta and Mandal 2010). National and State Programs such as Jal Jeevan Mission and Jal Swapno have promised piped water access to all arsenic affected regions but implementation has repeatedly bypassed rural settlements like Saira's.</p>
+                <p>Arsenic contamination across the Ganga-Brahmaputra-Meghna floodplains has been known for decades, leaching naturally from alluvial sediments into shallow aquifers. First identified in the 1970s and recognized as a major public health crisis by the late 1990s (Chakraborti et al. 2009), it has been met with a state response marked by delay and underinvestment. Deep tube wells that access safer aquifers remain too expensive for most rural households and have never been installed at the scale required (Burgess et al. 2010). National and State Programs such as Jal Jeevan Mission and Jal Swapno have promised piped water access to all arsenic affected regions but implementation has repeatedly bypassed rural settlements like Saira's.</p>
                 <figure class="essay-img-pair">
-                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
-                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
-                    <figcaption>[Left: caption. Right: caption.]</figcaption>
+                  <div class="img-cell"><img src="assets/tank.jpeg" alt="Government deep tube well in Saira's village"></div>
+<div class="img-cell"><img src="assets/water.png" alt="Women collecting water from the village pond"></div>
+                  <figcaption>Left: the village's single government deep tube well. Right: a woman collecting water from a private hand pump.</figcaption>
                 </figure>
                 <p>In practice, this leaves villagers with no safe alternative. In Saira's village, the entire community depends on a single government-installed deep tube well, far too few for its population. Wealthier households install private wells at significant cost, but for families like Saira's, this is not an option. Women therefore walk long distances to collect drinking water from the limited safe sources available, while for everything else bathing, washing, cleaning they rely on the village pond. These ponds are shared with livestock, used for jute retting, and receive runoff, including untreated brick-kiln effluent. Over time, this produces continuous exposure to contaminated water through everyday bodily practices.</p>
             </div>
@@ -640,9 +674,7 @@
             </div>
         </div>
     </div>
-
-    <div class="gingham-divider"></div>
-
+<div class="gingham-divider"></div>
     <!-- ═══ SECTION 3: What Water Does to the Womb ═══ -->
     <div class="essay-body-section bg-warm-white">
         <div class="container reveal">
@@ -665,15 +697,16 @@
                     <button class="essay-carousel-btn prev" aria-label="Previous">‹</button>
                     <button class="essay-carousel-btn next" aria-label="Next">›</button>
                     <div class="essay-carousel-track">
-                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Image 1</span></div></div>
-                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Image 2</span></div></div>
+                <div class="essay-carousel-slide"><img src="assets/interviewvillage.jpeg" alt="Interview with a participant in her village home"></div>
+                        <div class="essay-carousel-slide"><img src="assets/pond.jpeg" alt="The village pond used for daily bathing and washing"></div>
+                        <div class="essay-carousel-slide"><img src="assets/jute2.jpeg" alt="Jute fields in rural North 24 Parganas"></div>
                     </div>
-                </div>
-                <div class="essay-carousel-dots">
-                    <button class="essay-carousel-dot active" data-slide="0"></button>
-                    <button class="essay-carousel-dot" data-slide="1"></button>
-                </div>
-                <div class="essay-carousel-caption"><p>[Replace with images]</p></div>
+                    <div class="essay-carousel-dots">
+                        <button class="essay-carousel-dot active" data-slide="0"></button>
+                        <button class="essay-carousel-dot" data-slide="1"></button>
+                        <button class="essay-carousel-dot" data-slide="2"></button>
+                    </div>
+            <div class="essay-carousel-caption"><p>The village ponds used daily for bathing, washing, jute retting, and livestock.</p></div>
             </div>
         </div>
     </div>
@@ -683,7 +716,7 @@
         <div class="container reveal">
             <div class="essay-prose">
                 <p>What has received even less attention is how contaminated surface water damages women's fertility. Recent research has begun to trace a biological pathway from contaminated water to infertility that runs through the reproductive body. Czapar et al. (2024), in a study of 436 adolescent girls in western Kenya, found that girls who used pond water for washing were significantly more likely to lose the protective bacteria in their vaginal tract, leaving them vulnerable to infection, compared to those with access to piped water. In another study of women in the United States and Kenya, Sabo et al. (2019) found that vaginal washing with contaminated water, a daily necessity for women without running water, destroys these protective bacteria and allows harmful organisms to take hold. The scale of this problem is significant: in Odisha, India, Torondel et al. (2018) documented that 62.4% of women with poor water and sanitation access had at least one laboratory-confirmed reproductive tract infection.</p>
-                <p>Once established, these infections do not remain in the lower body. Bacteria ascend silently through the cervix into the uterus and fallopian tubes, producing pelvic inflammatory disease, often without symptoms severe enough to prompt treatment. Crucially, Haggerty et al. (2016) found that women with PID caused by these bacteria had 8.5 times higher risk of persistent infection in the uterus and nearly four times the risk of subsequent infertility, even when no sexually transmitted infection was present. This matters because approximately half of all PID cases test negative for gonorrhoea and chlamydia (Mitchell and Prabhu 2021). The organisms responsible, E. coli, Bacteroides, Streptococcus, are not sexually transmitted. They are the organisms found in faecally contaminated surface water (Pearce et al. 2025).</p>
+                <p>Once established, these infections do not remain in the lower body. Bacteria ascend silently through the cervix into the uterus and fallopian tubes, producing pelvic inflammatory disease, often without symptoms severe enough to prompt treatment. Crucially, Haggerty et al. (2016) found that women with PID caused by these bacteria had 8.5 times higher risk of persistent infection in the uterus and nearly four times the risk of subsequent infertility, even when no sexually transmitted infection was present. This matters because approximately half of all PID cases test negative for gonorrhoea and chlamydia (Mitchell and Prabhu 2021). The organisms responsible, E. coli, Bacteroides, Streptococcus, are not sexually transmitted. They are the organisms found in faecally contaminated surface water (Polyzou et al. 2025).</p>
             </div>
         </div>
     </div>
@@ -693,14 +726,14 @@
         <div class="container reveal">
             <div style="max-width:860px; margin:0 auto; border-radius:14px; overflow:hidden; box-shadow:0 8px 35px rgba(61,43,31,0.1); border:1px solid rgba(232,160,122,0.15); position:relative;">
                 <video controls playsinline preload="metadata" style="width:100%; display:block; background:#3D2B1F;">
-                    <source src="IMG_7212.mov" type="video/quicktime">
-                    <source src="IMG_7212.mov" type="video/mp4">
+                  <source src="assets/video1.mp4" type="video/mp4">
+<source src="assets/video1.mov" type="video/quicktime">
                     Your browser does not support the video tag.
                 </video>
                 <div style="position:absolute; bottom:0; left:0; right:0; height:80px; background:linear-gradient(to top, rgba(61,43,31,0.85) 0%, rgba(61,43,31,0.4) 50%, transparent 100%); pointer-events:none; z-index:1;"></div>
             </div>
             <div style="max-width:860px; margin:0.6rem auto 0; text-align:center;">
-                <p style="font-family:'Lora',serif; font-size:0.8rem; font-style:italic; color:var(--text-light); margin:0;">Infographic by Gungun Islam, developed in consultation with fertility specialists and based on clinical findings from Haggerty et al. (2016) and Mitchell and Prabhu (2021). Created with AI-assisted design tools.</p>
+                <p style="font-family:'Lora',serif; font-size:0.8rem; font-style:italic; color:var(--text-light); margin:0;">Infographic by Gungun Islam, developed in consultation with fertility specialists and based on clinical findings from Haggerty et al. (2016) and Mitchell and Prabhu (2021). Designed and animated with the support of digital illustration software.</p>
             </div>
         </div>
     </div>
@@ -712,16 +745,14 @@
                 <p>Many women in India fall victim to this problem, particularly in arsenic-contaminated regions where the government has failed to provide piped water and the few deep tube wells installed are far too few for the communities they serve. Private wells do exist, but they cost around one lakh rupees, about a thousand dollars, which is simply out of reach for most families. Saira's husband is the sole earner, bringing in about 10,000 rupees a month, roughly 100 dollars. So for them, accessing safe water is practically impossible. Within this context, collecting drinking water becomes a deeply gendered responsibility. It is women who travel long distances each day just to bring back drinking water, while relying on the village pond for bathing and domestic use. These ponds hold everything the village puts into them. Jute stalks are submerged for weeks, their decomposition feeding bacterial growth. Livestock wade through the same water, adding faecal matter. Brick kilns discharge untreated effluent carrying heavy metals and chemical waste. The water is neither treated nor monitored. Women use it daily to wash their bodies, clean their genitals, and manage menstrual hygiene, exposing their reproductive tracts directly to these contaminants.</p>
                 <p>For Saira, this daily exposure did exactly what the studies warn of. Contaminated pond water introduced enteric bacteria into her vaginal tract, disrupting the protective microbiome. Over time, those bacteria ascended silently through her cervix into her uterus and fallopian tubes, producing pelvic inflammatory disease. She had experienced pelvic pain for years but had grown accustomed to it, never recognising it as a symptom of an infection that was progressively destroying her fallopian tubes. By the time anyone looked closely enough to find the cause, there was nothing left to save. Her only option now was IVF.</p>
                 <figure class="essay-img-pair">
-                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
-                    <div class="img-cell"><div class="essay-inline-img-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Photo</span></div></div>
-                    <figcaption>[Left: caption. Right: caption.]</figcaption>
+                    <div class="img-cell"><img src="assets/Screenshot.png" alt="Representational image"></div>
+                    <div class="img-cell"><img src="assets/sai.png" alt="Representational image"></div>
+                    <figcaption><figcaption>The waiting body.</figcaption></figcaption>
                 </figure>
                 <p>The doctors instructed her to stop using the village pond and to avoid heavy physical exertion during treatment. These instructions assumed an infrastructure that does not exist. Saira now purchases drinking water at twenty rupees per container, an additional daily expense on a household already borrowing to fund IVF. For bathing, she walks to a more distant and less frequented pond, the only alternative available. Most women in the village avoid making this trip because they must walk back drenched through the village with no place to change, visible to neighbours in wet clothes, a source of shame in a community where women's bodily exposure is policed. The same absence of infrastructure that damaged her body now constrains her capacity to comply with the medical requirements of her own care.</p>
             </div>
         </div>
     </div>
-
-    <div class="gingham-divider"></div>
 
     <!-- ═══ SECTION 4: The Politics of the Womb ═══ -->
     <div class="essay-body-section bg-warm-white">
@@ -738,15 +769,12 @@
     </div>
 
     <!-- ═══ Body map image ═══ -->
-    <div style="max-width:400px; margin:0 auto; padding:0 1rem;">
-        <figure class="essay-inline-img" style="margin:0;">
-            <div class="essay-inline-img-placeholder" style="aspect-ratio:3/4;">
-                <div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div>
-                <span class="ph-label">Body Map</span>
-            </div>
-            <figcaption>[Body map image]</figcaption>
-        </figure>
-    </div>
+   <div style="max-width:400px; margin:0 auto; padding:0 1rem;">
+    <figure class="essay-inline-img" style="margin:0;">
+        <img src="assets/bodyimage.png" alt="Body map illustrating how contaminated water affects the reproductive body" style="width:100%; display:block;">
+<figcaption>A body map drawn by Saira, marking where she felt pain. Body mapping is a participatory method that gives visual representation to forms of suffering that often remain unspoken.</figcaption>
+    </figure>
+</div>
 
     <!-- ═══ SECTION 4 continued: Three tiers of care ═══ -->
     <div class="essay-body-section bg-warm-white">
@@ -766,9 +794,9 @@
                     <button class="essay-carousel-btn prev" aria-label="Previous">‹</button>
                     <button class="essay-carousel-btn next" aria-label="Next">›</button>
                     <div class="essay-carousel-track">
-                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Tier 1</span></div></div>
-                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Tier 2</span></div></div>
-                        <div class="essay-carousel-slide"><div class="essay-carousel-placeholder"><div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v8l4-3 3 2 4-4 5 5V6H4z"/></svg></div><span class="ph-label">Tier 3</span></div></div>
+                        <div class="essay-carousel-slide"><img src="assets/care.jpeg" alt="Tier 1: Rural GP / gynaecologist as referral gatekeeper"></div>
+                        <div class="essay-carousel-slide"><img src="assets/doctor.png" alt="Tier 2: ART rural OPD outreach camp"></div>
+                        <div class="essay-carousel-slide"><img src="assets/ART3.jpeg" alt="Tier 3: Kolkata ART clinic"></div>
                     </div>
                 </div>
                 <div class="essay-carousel-dots">
@@ -785,7 +813,7 @@
     <div class="essay-body-section bg-cream">
         <div class="container reveal">
             <div class="essay-prose">
-                <p>However, reaching the third tier of care, the private ART clinic that finally diagnosed Saira correctly, did not resolve the problem. It introduced new ones. The first was economic. Infertility care is almost entirely absent from India's public health programmes, excluded from insurance, and largely unavailable in the public sector (Widge and Cleland 2009, Sharma et al. 2023). Treatment is available only through private clinics at commercial rates. A single IVF cycle in Kolkata costs between 2.5 and 4 lakh rupees, with no guarantee of success. For a household where her husband is the sole earner as a migrant labourer in another city making ten thousand rupees a month, this represents two to three years of total income. To continue care, Saira's family borrowed money and sold assets, tipping the household into debt for a treatment the state's own negligence made necessary.</p>
+                <p>However, reaching the third tier of care, the private ART clinic that finally diagnosed Saira correctly, did not resolve the problem. It introduced new ones. The first was economic. Infertility care is almost entirely absent from India's public health programmes, excluded from insurance, and largely unavailable in the public sector (Tholeti et al. 2024). Treatment is available only through private clinics at commercial rates. A single IVF cycle in Kolkata costs between 2.5 and 4 lakh rupees, with no guarantee of success. For a household where her husband is the sole earner as a migrant labourer in another city making ten thousand rupees a month, this represents two to three years of total income. To continue care, Saira's family borrowed money and sold assets, tipping the household into debt for a treatment the state's own negligence made necessary.</p>
                 <p>The second problem was the distance. The treatment itself assumes that the patient lives close to the clinic. Saira does not. She travels six hours round trip for every visit, alone, while managing a hormonal regimen that requires self-administered injections at precise intervals. She described missing injections because the timing fell during travel, or because she could not manage the administration without medical supervision. The clinic that had recruited her from her village through a rural outreach camp, that had invested in identifying her as a patient and drawn her into a treatment cycle costing lakhs of rupees, provided no infrastructure to support her through it. ART clinics in Kolkata do not have emergency services or outpatient services where patients can come in case complications arise. It is more difficult for someone like Saira who is anyway travelling hundreds of kilometres to come to the urban clinic in the first place as there is nothing in her village. The distance the clinic was willing to bridge for the purpose of recruitment, it made no effort to bridge for the purpose of care. There is no satellite facility of the clinic in the village and in case of emergency Saira must travel all the way back to Kolkata.</p>
             </div>
         </div>
@@ -814,7 +842,54 @@
             </div>
         </div>
     </div>
+<!-- ═══ BIBLIOGRAPHY ═══ -->
+    <div class="essay-body-section bg-warm-white">
+        <div class="container reveal">
+            <div class="essay-section-heading">
+                <h3>References</h3>
+                <div class="heading-rule"></div>
+            </div>
+            <div class="essay-prose" style="font-size:0.95rem; line-height:1.8;">
 
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Burgess, William G., Mohammad A. Hoque, Holly A. Michael, Clifford I. Voss, George N. Breit, and Kazi Matin Ahmed. 2010. "Vulnerability of Deep Groundwater in the Bengal Aquifer System to Contamination by Arsenic." <em>Nature Geoscience</em> 3 (2): 83–87.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Chakraborti, Dipankar, Bhaskar Das, Mohammad Mahmudur Rahman, Uttam Kumar Chowdhury, Bhajan Biswas, A. B. Goswami, Bishwajit Nayak, et al. 2009. "Status of Groundwater Arsenic Contamination in the State of West Bengal, India: A 20-Year Study Report." <em>Molecular Nutrition & Food Research</em> 53 (5): 542–551.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Czapar, Anna E., Souvik Paul, Garazi Zulaika, Fredrick Otieno, Walter Agingu, Adit Chaudhary, Runa Bhaumik, et al. 2024. "Water Source, Latrine Type, and Rainfall Are Associated with Detection of Non-Optimal and Enteric Bacteria in the Vaginal Microbiome: A Prospective Observational Cohort Study Nested within a Cluster Randomized Controlled Trial." <em>BMC Infectious Diseases</em> 24 (1): 1419.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Farmer, Paul. 2004. "An Anthropology of Structural Violence." <em>Current Anthropology</em> 45 (3): 305–325.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Haggerty, Catherine L., Patricia A. Totten, Gong Tang, Sabina G. Astete, Michael J. Ferris, Johana Norori, Debra C. Bass, David H. Martin, Brandie D. Taylor, and Roberta B. Ness. 2016. "Identification of Novel Microbes Associated with Pelvic Inflammatory Disease and Infertility." <em>Sexually Transmitted Infections</em> 92 (6): 441–446.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Kundu, Sampurna, Babul Ali, and Preeti Dhillon. 2023. "Surging Trends of Infertility and Its Behavioural Determinants in India." <em>PLOS ONE</em> 18 (7): e0289096.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Lock, Margaret. 1993. <em>Encounters with Aging: Mythologies of Menopause in Japan and North America</em>. Berkeley: University of California Press.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Milton, Abul H., Sumaira Hussain, Shahnaz Akter, Mijanur Rahman, Tafzila A. Mouly, and Kane Mitchell. 2017. "A Review of the Effects of Chronic Arsenic Exposure on Adverse Pregnancy Outcomes." <em>International Journal of Environmental Research and Public Health</em> 14 (6): 556.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Mitchell, Caroline, and Malavika Prabhu. 2013. "Pelvic Inflammatory Disease: Current Concepts in Pathogenesis, Diagnosis and Treatment." <em>Infectious Disease Clinics of North America</em> 27 (4): 793–809.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Pinchoff, Jessie, Brent Monseur, Sapna Desai, Katelyn Koons, Ruben Alvero, and Michelle J. Hindin. 2022. "Is Living in a Region with High Groundwater Arsenic Contamination Associated with Adverse Reproductive Health Outcomes? An Analysis Using Nationally Representative Data from India." <em>International Journal of Hygiene and Environmental Health</em> 239: 113883.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Polyzou, Eleni, Eirini Ntalaki, Maria Gavatha, and Karolina Akinosoglou. 2025. "Non-Sexually Transmitted Infection (STI)-Related Pelvic Inflammatory Disease (PID)." <em>Microorganisms</em> 13 (12): 2813.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Quansah, Reginald, Frederick Ato Armah, David Kofi Essumang, Isaac Luginaah, Edith Clarke, Kissinger Marfoh, Samuel Jerry Cobbina, Edward Nketiah-Amponsah, Proscovia Bazanya Namujju, Samuel Obiri, and Mawuli Dzodzomenyo. 2015. "Association of Arsenic with Adverse Pregnancy Outcomes/Infant Mortality: A Systematic Review and Meta-Analysis." <em>Environmental Health Perspectives</em> 123 (5): 412–421.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Rahman, Mohammad Mahmudur, Badal Kumar Mandal, Tarit Roy Chowdhury, Mrinal Kumar Sengupta, Uttam Kumar Chowdhury, Dilip Lodh, Chitta Ranjan Chanda, et al. 2003. "Arsenic Groundwater Contamination and Sufferings of People in North 24-Parganas, One of the Nine Arsenic Affected Districts of West Bengal, India." <em>Journal of Environmental Science and Health, Part A</em> 38 (1): 25–59.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Sabo, Michelle C., Jennifer E. Balkus, Barbra A. Richardson, Sujatha Srinivasan, Joshua Kimani, Omu Anzala, Jane Schwebke, Tina L. Fiedler, David N. Fredricks, and R. Scott McClelland. 2019. "Association between Vaginal Washing and Vaginal Bacterial Concentrations." <em>PLoS One</em> 14 (1): e0210825.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Susko, Michele L., Michael S. Bloom, Iulia A. Neamtiu, Allison A. Appleton, Simona Surdu, Cristian Pop, Edward F. Fitzgerald, Doru Anastasiu, and Eugen S. Gurzau. 2017. "Low-Level Arsenic Exposure via Drinking Water Consumption and Female Fecundity — A Preliminary Investigation." <em>Environmental Research</em> 154: 120–125.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Tholeti, Prathima, Shubhashree Uppangala, Guruprasad Kalthur, and Satish Kumar Adiga. 2024. "The Landscape of Assisted Reproductive Technology Access in India." <em>Reproduction and Fertility</em> 5 (4): e240079.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Torondel, Belen, Shalini Sinha, Jyoti Ranjan Mohanty, Tapoja Swain, Pranati Sahoo, Bijaya Panda, Arati Nayak, et al. 2018. "Association between Unhygienic Menstrual Management Practices and Prevalence of Lower Reproductive Tract Infections: A Hospital-Based Cross-Sectional Study in Odisha, India." <em>BMC Infectious Diseases</em> 18 (1): 473.</p>
+
+                <p style="text-indent:-1.5rem; padding-left:1.5rem;">Widge, Anjali, and John Cleland. 2009. "The Public Sector's Role in Infertility Management in India." <em>Health Policy and Planning</em> 24 (2): 108–115.</p>
+
+            </div>
+        </div>
+    </div>
     <div class="gingham-divider"></div>
     <footer class="footer">
         <div class="footer-gingham-strip"></div>
