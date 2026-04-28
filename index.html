@@ -339,6 +339,13 @@
                 if (l.getAttribute('data-page') === pageId) l.classList.add('active');
             });
             window.scrollTo(0, 0);
+            // Reload iframes when their page becomes active so Leaflet measures correctly
+            var section = document.getElementById(pageId);
+            var iframe = section.querySelector('iframe');
+            if (iframe) {
+                var src = iframe.getAttribute('src');
+                iframe.setAttribute('src', src);
+            }
             setTimeout(function() {
                 document.querySelectorAll('#' + pageId + ' .reveal').forEach(function(el) {
                     el.classList.add('visible');
