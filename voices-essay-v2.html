@@ -1532,6 +1532,23 @@
             window.dispatchEvent(new Event('resize'));
         }, 800);
     });
+    // Force map redraw once iframe is visible at full size
+    function forceMapResize() {
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    if (window.ResizeObserver) {
+        var ro = new ResizeObserver(function() {
+            forceMapResize();
+        });
+        ro.observe(document.body);
+    }
+
+    window.addEventListener('load', function() {
+        [100, 500, 1000, 2000].forEach(function(d) {
+            setTimeout(forceMapResize, d);
+        });
+    });
     </script>
 
 </body>

@@ -598,6 +598,27 @@ function toggleAbout(){var sb=document.getElementById('aboutSB');var btn=documen
 document.getElementById('aboutSB').addEventListener('mouseenter',function(){map.scrollWheelZoom.disable()});
 document.getElementById('aboutSB').addEventListener('mouseleave',function(){map.scrollWheelZoom.enable()});
 document.getElementById('aboutSB').addEventListener('wheel',function(e){e.stopPropagation()},{passive:false});
+
+});
+
+    // Force map redraw once iframe is visible at full size
+    function forceMapResize() {
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    if (window.ResizeObserver) {
+        var ro = new ResizeObserver(function() {
+            forceMapResize();
+        });
+        ro.observe(document.body);
+    }
+
+    window.addEventListener('load', function() {
+        [100, 500, 1000, 2000].forEach(function(d) {
+            setTimeout(forceMapResize, d);
+        });
+    });
+    </script>
 </script>
 </body>
 </html>
